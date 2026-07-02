@@ -1,0 +1,298 @@
+#!/usr/bin/env bash
+#
+# setup.sh — Hermes Skills Provisioning Script
+#
+# Copies all skill directories to /opt/data/skills and installs all
+# prerequisites: OS packages, Python libraries, and Node.js global packages.
+#
+# Usage:
+#   ./setup.sh              # Required deps only
+#   ./setup.sh --all        # Required + optional deps (OCR, pdftk, etc.)
+#   ./setup.sh --help       # Show help
+#
+
+set -euo pipefail
+
+# ─── Configuration ───────────────────────────────────────────────────────────
+
+HERMES_ROOT="/opt/hermes"
+SKILLS_DIR="/opt/data/skills"
+VENV_PYTHON="${HERMES_ROOT}/.venv/bin/python"
+VENV_PIP="${HERMES_ROOT}/.venv/bin/pip"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+INSTALL_ALL=false
+
+# ─── Help ────────────────────────────────────────────────────────────────────
+
+usage() {
+	cat <<'EOF'
+Usage: ./setup.sh [--all] [--help]
+
+  --all      Also install optional/legacy dependencies (pdftk-java, tesseract,
+             pytesseract, pypdfium2, numpy).
+  --help     Show this message.
+EOF
+	exit 0
+}
+
+for arg in "$@"; do
+	case "$arg" in
+		--all)  INSTALL_ALL=true ;;
+		--help) usage ;;
+		*)      echo "Unknown argument: $arg"; usage ;;
+	esac
+done
+
+# ─── Pre-flight checks ──────────────────────────────────────────────────────
+
+echo "==> Running pre-flight checks..."
+
+if [[ "$(id -u)" -ne 0 ]]; then
+	echo "ERROR: This script must be run as root (or with sudo)."
+	exit 1
+fi
+
+if [[ ! -d "${SCRIPT_DIR}/docx-odt" || ! -d "${SCRIPT_DIR}/pdf" || ! -d "${SCRIPT_DIR}/pptx" || ! -d "${SCRIPT_DIR}/xlsx-ods" ]]; then
+	echo "ERROR: Skill directories (docx-odt/, pdf/, pptx/, xlsx-ods/) not found next to setup.sh"
+	echo "       Expected them in: ${SCRIPT_DIR}/"
+	exit 1
+fi
+
+# ─── Copy skills to /opt/data/skills ──────────────────────────────────────
+
+echo ""
+echo "==> Checking /opt/data/skills..."
+
+mkdir -p "${SKILLS_DIR}"
+
+for skill in docx-odt pdf pptx xlsx-ods; do
+	SKILL_PATH="${SKILLS_DIR}/${skill}"
+	if [[ -d "${SKILL_PATH}" ]]; then
+		echo "    Skill '${skill}' already exists — replacing..."
+		rm -rf "${SKILL_PATH}"
+	fi
+	echo "    Copying ${skill}..."
+	cp -a "${SCRIPT_DIR}/${skill}" "${SKILL_PATH}"
+done
+
+echo "    Done. Skills installed:"
+find "${SKILLS_DIR}" -maxdepth 1 -mindepth 1 -type d | sort | while read -r d; do
+	echo "      $(basename "$d")"
+done
+
+# ─── Bootstrap pip ──────────────────────────────────────────────────────────
+
+echo ""
+echo "==> Setting up pip in the Hermes virtual environment..."
+
+if [[ ! -x "${VENV_PYTHON}" ]]; then
+	echo "ERROR: Python not found at ${VENV_PYTHON}"
+	echo "       Make sure the Hermes virtual environment exists before running this script."
+	exit 1
+fi
+
+if "${VENV_PIP}" --version &>/dev/null; then
+	echo "    pip is already available — skipping ensurepip."
+else
+	echo "    Running ensurepip..."
+	"${VENV_PYTHON}" -m ensurepip --default-pip || {
+		echo "WARNING: ensurepip failed. Attempting to install pip via apt..."
+		apt-get update -qq && apt-get install -y -qq python3-pip
+		# Recreate the venv pip symlink / bootstrap if needed
+		"${VENV_PYTHON}" -m ensurepip --default-pip || {
+			echo "ERROR: Could not bootstrap pip. Aborting."
+			exit 1
+		}
+	}
+	echo "    Upgrading pip..."
+	"${VENV_PIP}" install --upgrade pip -q
+fi
+
+# ─── OS packages ────────────────────────────────────────────────────────────
+
+echo ""
+echo "==> Installing OS-level dependencies..."
+
+apt-get update -qq
+
+# Required packages (consolidated from all skills, deduplicated)
+REQUIRED_PKGS=(
+	# docx
+	pandoc
+	libreoffice-core
+	poppler-utils
+	gcc
+	# pdf (additional)
+	qpdf
+	imagemagick
+	# pptx (additional)
+	libreoffice-impress
+)
+
+# Optional / legacy packages
+OPTIONAL_PKGS=(
+	tesseract-ocr       # OCR engine for pytesseract (pdf)
+	pdftk-java          # Legacy PDF toolkit (pdf)
+)
+
+echo "    Installing required packages: ${REQUIRED_PKGS[*]}"
+apt-get install -y -qq "${REQUIRED_PKGS[@]}" || {
+	echo "ERROR: Failed to install required OS packages."
+	exit 1
+}
+
+if [[ "${INSTALL_ALL}" == true ]]; then
+	echo ""
+	echo "    Installing optional packages: ${OPTIONAL_PKGS[*]}"
+	apt-get install -y -qq "${OPTIONAL_PKGS[@]}" || {
+		echo "WARNING: Some optional packages failed to install — continuing."
+	}
+fi
+
+# Verify critical binaries are on PATH
+echo ""
+echo "    Verifying critical binaries..."
+CRITICAL_BINS=(pandoc soffice pdftoppm gcc)
+for bin in "${CRITICAL_BINS[@]}"; do
+	if command -v "${bin}" &>/dev/null; then
+		echo "      ✓ ${bin} ($(command -v "${bin}"))"
+	else
+		echo "      ✗ ${bin} NOT FOUND — some functionality will not work."
+	fi
+done
+
+# ─── Python packages ────────────────────────────────────────────────────────
+
+echo ""
+echo "==> Installing Python dependencies..."
+
+# Core Python packages (required, deduplicated across all skills)
+CORE_PYTHON=(
+	# docx
+	defusedxml
+	lxml
+	# pdf
+	pypdf
+	pdfplumber
+	pdf2image
+	Pillow
+	reportlab
+	pandas
+	# pptx
+	markitdown[all]
+	# xlsx
+	openpyxl
+)
+
+echo "    Installing core packages into venv: ${CORE_PYTHON[*]}"
+"${VENV_PIP}" install "${CORE_PYTHON[@]}" -q || {
+	echo "ERROR: Failed to install core Python packages into venv."
+	exit 1
+}
+
+# Also install into system Python so that `python -m markitdown` and similar
+# ad-hoc commands work without needing to activate the venv.
+echo "    Installing core packages into system Python: ${CORE_PYTHON[*]}"
+SYSTEM_PIP="$(command -v pip3 || command -v pip || echo '')"
+if [[ -n "${SYSTEM_PIP}" ]]; then
+	"${SYSTEM_PIP}" install "${CORE_PYTHON[@]}" -q || {
+		echo "WARNING: Failed to install some packages into system Python — continuing."
+	}
+else
+	echo "WARNING: No system pip found — skipping system Python install."
+	echo "         Agents must use ${VENV_PYTHON} instead of bare 'python'."
+fi
+
+# Optional Python packages
+OPTIONAL_PYTHON=(
+	pytesseract
+	pypdfium2
+	numpy
+)
+
+if [[ "${INSTALL_ALL}" == true ]]; then
+	echo ""
+	echo "    Installing optional packages into venv: ${OPTIONAL_PYTHON[*]}"
+	"${VENV_PIP}" install "${OPTIONAL_PYTHON[@]}" -q || {
+		echo "WARNING: Some optional Python packages failed to install into venv — continuing."
+	}
+	if [[ -n "${SYSTEM_PIP}" ]]; then
+		echo "    Installing optional packages into system Python: ${OPTIONAL_PYTHON[*]}"
+		"${SYSTEM_PIP}" install "${OPTIONAL_PYTHON[@]}" -q || {
+			echo "WARNING: Some optional packages failed to install into system Python — continuing."
+		}
+	fi
+fi
+
+echo "    Verifying key Python imports (venv)..."
+KEY_IMPORTS=(defusedxml lxml pypdf pdfplumber pdf2image PIL reportlab pandas markitdown openpyxl)
+for mod in "${KEY_IMPORTS[@]}"; do
+	if "${VENV_PYTHON}" -c "import ${mod}" 2>/dev/null; then
+		echo "      ✓ ${mod} (venv)"
+	else
+		echo "      ✗ ${mod} FAILED TO IMPORT in venv"
+	fi
+done
+
+echo "    Verifying key Python imports (system)..."
+SYSTEM_PYTHON="$(command -v python3 || command -v python || echo '')"
+if [[ -n "${SYSTEM_PYTHON}" ]]; then
+	for mod in "${KEY_IMPORTS[@]}"; do
+		if "${SYSTEM_PYTHON}" -c "import ${mod}" 2>/dev/null; then
+			echo "      ✓ ${mod} (system)"
+		else
+			echo "      ✗ ${mod} FAILED TO IMPORT in system Python"
+		fi
+	done
+else
+	echo "    WARNING: No system Python found — skipping verification."
+fi
+
+# ─── Node.js & NPM global packages ──────────────────────────────────────────
+
+echo ""
+echo "==> Checking Node.js / npm..."
+
+NPM_GLOBAL_PKGS=(
+	# docx
+	docx
+	# pptx
+	pptxgenjs
+	react-icons
+	react
+	react-dom
+	sharp
+)
+
+if command -v node &>/dev/null && command -v npm &>/dev/null; then
+	echo "    Node.js $(node --version) / npm $(npm --version) detected."
+
+	echo "    Installing global npm packages: ${NPM_GLOBAL_PKGS[*]}"
+	npm install -g "${NPM_GLOBAL_PKGS[@]}" -q 2>&1 || {
+		echo "WARNING: Some npm packages failed to install. Check npm output above."
+	}
+
+	echo "    Verifying key npm packages..."
+	for pkg in docx pptxgenjs react-icons react react-dom sharp; do
+		if node -e "require('${pkg}')" 2>/dev/null; then
+			echo "      ✓ ${pkg}"
+		else
+			echo "      ✗ ${pkg} NOT FOUND"
+		fi
+	done
+else
+	echo "    WARNING: Node.js or npm not found on PATH."
+	echo "    The following npm packages were SKIPPED: ${NPM_GLOBAL_PKGS[*]}"
+	echo "    Install Node.js first (e.g., 'apt install nodejs npm') and re-run this script."
+fi
+
+# ─── Done ───────────────────────────────────────────────────────────────────
+
+echo ""
+echo "========================================"
+echo "  Hermes Skills setup complete!"
+echo "  Skills directory: ${SKILLS_DIR}"
+echo "  Python: ${VENV_PYTHON}"
+echo "  Run with --all next time for optional deps"
+echo "========================================"
