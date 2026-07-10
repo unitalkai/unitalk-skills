@@ -20,6 +20,7 @@ SKILLS_DIR="/opt/data/skills"
 VENV_PYTHON="${HERMES_ROOT}/.venv/bin/python"
 VENV_PIP="${HERMES_ROOT}/.venv/bin/pip"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+HERMES_HOME="/opt/data"
 
 INSTALL_ALL=false
 
@@ -301,7 +302,7 @@ DISABLE_SKILLS=(
   "obsidian"
 )
 
-CONFIG_PATH="${HERMES_ROOT}/.hermes/config.yaml"
+CONFIG_PATH="${HERMES_HOME}/config.yaml"
 
 if command -v python3 &>/dev/null && "${VENV_PYTHON}" -c "import yaml" 2>/dev/null; then
 	if [ -f "$CONFIG_PATH" ]; then
