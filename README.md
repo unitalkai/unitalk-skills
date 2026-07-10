@@ -1,11 +1,11 @@
-# Hermes Skills
+# Unitalk Skills
 
-A curated collection of agent skills for the [Hermes](https://github.com/the-hermes-project) agent platform, providing document creation, editing, and analysis capabilities for common office file formats.
+A curated collection of 19 agent skills organized into 6 category directories for the Unitalk agent platform.
 
 ## Repository Structure
 
 ```
-hermes-skills/
+unitalk-skills/
 ├── setup.sh                          # One-shot provisioning script
 ├── README.md                         # This file
 ├── PREREQUESITES-DEPENDENCIES/       # Per-skill dependency manifests
@@ -13,153 +13,125 @@ hermes-skills/
 │   ├── pdf.md
 │   ├── pptx.md
 │   └── xlsx.md
-├── docx-odt/                         # Word / ODT skill
-│   ├── SKILL.md                      # Skill definition & usage guide
-│   ├── LICENSE.txt
-│   ├── scripts/                      # Python helper scripts
-│   │   ├── accept_changes.py
-│   │   ├── comment.py
-│   │   ├── office/                   # Shared office-format tooling
-│   │   │   ├── pack.py               #   Repack exploded XML → .docx/.pptx/.xlsx
-│   │   │   ├── unpack.py             #   Unzip .docx/.pptx/.xlsx → XML tree
-│   │   │   ├── soffice.py            #   LibreOffice headless bridge
-│   │   │   ├── validate.py           #   XSD schema validation
-│   │   │   ├── helpers/              #   XML merge-runs, redline simplification
-│   │   │   ├── schemas/              #   ECMA / ISO-IEC 29500 XSD schemas
-│   │   │   └── validators/           #   Per-format validators (docx, pptx, redlining)
-│   │   └── templates/                #   XML templates for comments, people, etc.
-├── pdf/                              # PDF skill
-│   ├── SKILL.md
-│   ├── forms.md                      # Form-filling reference
-│   ├── reference.md                  # General PDF reference
-│   ├── LICENSE.txt
-│   └── scripts/
-│       ├── check_bounding_boxes.py
-│       ├── check_fillable_fields.py
-│       ├── convert_pdf_to_images.py
-│       ├── create_validation_image.py
-│       ├── extract_form_field_info.py
-│       ├── extract_form_structure.py
-│       ├── fill_fillable_fields.py
-│       └── fill_pdf_form_with_annotations.py
-├── pptx/                             # PowerPoint skill
-│   ├── SKILL.md
-│   ├── editing.md                    # Editing & QA reference
-│   ├── pptxgenjs.md                  # pptxgenjs (Node.js) usage guide
-│   ├── LICENSE.txt
-│   └── scripts/
-│       ├── add_slide.py
-│       ├── clean.py
-│       ├── thumbnail.py
-│       └── office/                   # (shared structure — see docx-odt/scripts/office/)
-└── xlsx-ods/                         # Excel / ODS skill
-    ├── SKILL.md
-    ├── LICENSE.txt
-    └── scripts/
-        ├── recalc.py
-        └── office/                   # (shared structure — see docx-odt/scripts/office/)
+├── code/                             # Planning & automation skills
+│   ├── DESCRIPTION.md
+│   ├── computer-use/
+│   ├── plan/
+│   └── writing-plans/
+├── discussion-and-writing/           # Writing & communication skills
+│   ├── DESCRIPTION.md
+│   ├── himalaya/
+│   ├── humanizer/
+│   ├── ideation/
+│   └── obsidian/
+├── documents-and-analysis/           # Document & data analysis skills
+│   ├── DESCRIPTION.md
+│   ├── docx-odt/
+│   ├── jupyter-live-kernel/
+│   ├── nano-pdf/
+│   ├── pdf/
+│   ├── pptx/
+│   └── xlsx-ods/
+├── medias/                           # Media creation skills
+│   ├── DESCRIPTION.md
+│   ├── excalidraw/
+│   └── youtube-content/
+├── optimization-and-security/        # Optimization & efficiency skills
+│   ├── DESCRIPTION.md
+│   └── caveman/
+└── web-and-research/                 # Web & research skills
+    ├── DESCRIPTION.md
+    ├── arxiv/
+    ├── blogwatcher/
+    ├── llm-wiki/
+    ├── maps/
+    └── xurl/
 ```
 
-### Skills at a Glance
+## Skills at a Glance
 
-| Skill        | Directory   | Formats                                  | Key Capabilities                                                                                                                                |
-| ------------ | ----------- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| **docx-odt** | `docx-odt/` | `.docx`, `.odt`, `.doc`, `.txt`          | Create/edit Word & ODT documents, tracked changes, comments, find-and-replace, image insertion, format conversion (doc→docx, odt↔docx, txt→odt) |
-| **pdf**      | `pdf/`      | `.pdf`                                   | Merge, split, rotate, encrypt/decrypt, fill forms, extract text/tables/images, OCR, create new PDFs from scratch                                |
-| **pptx**     | `pptx/`     | `.pptx`                                  | Create/edit presentations, slide thumbnails, text extraction, template-based generation, programmatic creation via pptxgenjs                    |
-| **xlsx-ods** | `xlsx-ods/` | `.xlsx`, `.xlsm`, `.ods`, `.csv`, `.tsv` | Read/write/edit spreadsheets, formula recalculation, data cleaning, charting, format conversion (ods↔xlsx)                                      |
+### Code & Automation
+
+| Skill              | Directory                            | Key Capabilities                                                          |
+| ------------------ | ------------------------------------ | ------------------------------------------------------------------------- |
+| **computer-use**   | `code/computer-use/`                 | Desktop automation, multi-platform interactions                           |
+| **plan**           | `code/plan/`                         | Plan-mode workflows, task decomposition                                   |
+| **writing-plans**  | `code/writing-plans/`                | Implementation plan writing, structured technical specifications          |
+
+### Discussion & Writing
+
+| Skill              | Directory                            | Key Capabilities                                                          |
+| ------------------ | ------------------------------------ | ------------------------------------------------------------------------- |
+| **himalaya**       | `discussion-and-writing/himalaya/`   | Email CLI management, message composition, account configuration          |
+| **humanizer**      | `discussion-and-writing/humanizer/`  | AI text humanization, style transformation                                |
+| **ideation**       | `discussion-and-writing/ideation/`   | Creative brainstorming, project ideation, prompt library                  |
+| **obsidian**       | `discussion-and-writing/obsidian/`   | Obsidian vault management, note creation and editing                      |
+
+### Documents & Analysis
+
+| Skill                 | Directory                                   | Key Capabilities                                                                                                                                |
+| --------------------- | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| **docx-odt**          | `documents-and-analysis/docx-odt/`          | Create/edit Word & ODT documents, tracked changes, comments, find-and-replace, image insertion, format conversion (doc→docx, odt↔docx, txt→odt) |
+| **jupyter-live-kernel** | `documents-and-analysis/jupyter-live-kernel/` | Iterative Python via live Jupyter kernel, data exploration, visualization, persistent state                                                   |
+| **nano-pdf**          | `documents-and-analysis/nano-pdf/`          | Natural-language PDF text editing (typos, titles) via nano-pdf CLI                                                                              |
+| **pdf**               | `documents-and-analysis/pdf/`               | Merge, split, rotate, encrypt/decrypt, fill forms, extract text/tables/images, OCR, create new PDFs                                             |
+| **pptx**              | `documents-and-analysis/pptx/`              | Create/edit presentations, slide thumbnails, text extraction, template-based generation, programmatic creation via pptxgenjs                    |
+| **xlsx-ods**          | `documents-and-analysis/xlsx-ods/`          | Read/write/edit spreadsheets, formula recalculation, data cleaning, charting, format conversion (ods↔xlsx)                                      |
+
+### Media
+
+| Skill                 | Directory                     | Key Capabilities                                                          |
+| --------------------- | ----------------------------- | ------------------------------------------------------------------------- |
+| **excalidraw**        | `medias/excalidraw/`          | Hand-drawn diagrams, flowcharts, architecture diagrams, sequence diagrams |
+| **youtube-content**   | `medias/youtube-content/`     | YouTube transcript extraction, summaries, threads, blog posts             |
+
+### Optimization & Security
+
+| Skill              | Directory                            | Key Capabilities                                                          |
+| ------------------ | ------------------------------------ | ------------------------------------------------------------------------- |
+| **caveman**        | `optimization-and-security/caveman/`  | Ultra-compressed communication mode, token optimization                    |
+
+### Web & Research
+
+| Skill              | Directory                            | Key Capabilities                                                          |
+| ------------------ | ------------------------------------ | ------------------------------------------------------------------------- |
+| **arxiv**          | `web-and-research/arxiv/`            | arXiv paper search and discovery                                          |
+| **blogwatcher**    | `web-and-research/blogwatcher/`      | Blog/RSS feed monitoring and aggregation                                  |
+| **llm-wiki**       | `web-and-research/llm-wiki/`         | Knowledge base / wiki builder from LLM output                             |
+| **maps**           | `web-and-research/maps/`             | Geocoding, POI lookup, routing via OpenStreetMap/OSRM                     |
+| **xurl**           | `web-and-research/xurl/`             | X/Twitter API integration, timeline and media management                  |
 
 ---
 
 ## Deployment
 
-The skills are designed to be deployed alongside a Hermes agent instance. The recommended approach is to run `setup.sh` inside the Hermes Docker container.
+The skills are designed to be deployed alongside a Unitalk agent instance. The recommended approach is to run `setup.sh` inside the Unitalk container.
 
 ### Prerequisites
 
-- A running Hermes container with:
-  - `/opt/hermes/.venv/` — Python virtual environment (created by the Hermes installer)
-  - `/opt/data/skills/` — skills directory mounted or baked into the image
-- `setup.sh` and all skill directories available inside the container (via bind mount, `COPY`, or `git clone`)
+- A running Unitalk container with:
+  - `/opt/hermes/.venv/` — Python virtual environment
+  - `/opt/data/skills/` — skills directory
+- `setup.sh` and all skill directories available inside the container
 
 ### One-Shot Setup (Recommended)
 
-Copy `setup.sh` and the skill directories into the container, then run:
-
 ```bash
-# Inside the Hermes container (as root):
+# Inside the container (as root):
 ./setup.sh
 
-# Or with optional/legacy dependencies:
+# Or with optional dependencies:
 ./setup.sh --all
 ```
 
-The script performs the following steps in order:
-
-1. **Pre-flight checks** — verifies root access and that all four skill directories exist
-2. **Copy skills** — copies `docx-odt/`, `pdf/`, `pptx/`, and `xlsx-ods/` into `/opt/data/skills/`, replacing only those four directories (other pre-existing skills are left untouched)
-3. **Bootstrap pip** — runs `python -m ensurepip --default-pip` inside the Hermes venv if pip isn't already available
-4. **OS packages** — installs `pandoc`, `libreoffice-core`, `libreoffice-impress`, `poppler-utils`, `gcc`, `qpdf`, and `imagemagick` via `apt-get`
-5. **Python packages** — installs all required libraries into **both** the Hermes venv **and** the system Python (so that bare `python -m markitdown` works)
-6. **Node.js global packages** — installs `docx`, `pptxgenjs`, `react-icons`, `react`, `react-dom`, and `sharp` via `npm install -g` (skipped gracefully if Node.js is not present)
-7. **Verification** — checks that all critical binaries are on `$PATH` and all key Python modules are importable
-
-### Dockerfile Example
-
-```dockerfile
-FROM hermes-base:latest
-
-# Copy skills into the image
-COPY hermes-skills/ /tmp/hermes-skills/
-
-# Run the setup script
-RUN cd /tmp/hermes-skills && bash setup.sh && rm -rf /tmp/hermes-skills
-```
-
-Or, if you prefer to keep skills on a volume/bind mount and provision at container start:
-
-```dockerfile
-FROM hermes-base:latest
-
-COPY hermes-skills/setup.sh /usr/local/bin/hermes-skills-setup
-COPY hermes-skills/ /opt/hermes-skills-src/
-
-# The entrypoint can run setup.sh if /opt/data/skills is empty
-COPY docker-entrypoint.sh /
-ENTRYPOINT ["/docker-entrypoint.sh"]
-```
-
-Example `docker-entrypoint.sh`:
-
-```bash
-#!/usr/bin/env bash
-# Only run setup if skills haven't been provisioned yet
-if [ ! -d /opt/data/skills/docx-odt ]; then
-    cd /opt/hermes-skills-src && bash setup.sh
-fi
-exec "$@"
-```
-
-### Docker Compose Example
-
-```yaml
-services:
-  hermes:
-    image: hermes:latest
-    volumes:
-      - ./hermes-skills:/tmp/hermes-skills:ro
-      - skills_data:/opt/data/skills
-    command: >
-      bash -c "
-        if [ ! -d /opt/data/skills/docx-odt ]; then
-          cd /tmp/hermes-skills && bash setup.sh
-        fi &&
-        exec /opt/hermes/bin/hermes-server
-      "
-
-volumes:
-  skills_data:
-```
+The script performs:
+1. **Pre-flight checks** — verifies root access and required directories
+2. **Copy skills** — copies all category directories into `/opt/data/skills/`
+3. **Bootstrap pip** — ensures pip is available in the venv
+4. **OS packages** — installs system dependencies via `apt-get`
+5. **Python packages** — installs required libraries into both the venv and system Python
+6. **Node.js global packages** — installs npm packages (skipped if Node.js unavailable)
+7. **Verification** — checks critical binaries and Python modules
 
 ### What Gets Installed
 
@@ -175,22 +147,20 @@ See `PREREQUESITES-DEPENDENCIES/` for the full per-skill breakdown. Quick summar
 
 ### Why System Python Too?
 
-The Hermes venv at `/opt/hermes/.venv/bin/python` is used by scripts that explicitly reference it. However, agents often invoke commands like `python -m markitdown file.pptx` using the bare `python` on `$PATH` (the system Python). To ensure both work, `setup.sh` installs Python packages into **both** the venv and the system Python.
+The Unitalk venv at `/opt/hermes/.venv/bin/python` is used by scripts that explicitly reference it. However, agents often invoke commands like `python -m markitdown file.pptx` using the bare `python` on `$PATH`. To ensure both work, `setup.sh` installs Python packages into **both** the venv and the system Python.
 
 ---
 
-## Manual Setup (Without setup.sh)
-
-If you prefer to install dependencies manually, consult the per-skill manifests:
+## Manual Setup
 
 ```bash
 # OS packages
 sudo apt-get install -y pandoc libreoffice-core libreoffice-impress poppler-utils gcc qpdf imagemagick
 
-# Python (into the Hermes venv)
+# Python (into the venv)
 /opt/hermes/.venv/bin/pip install defusedxml lxml pypdf pdfplumber pdf2image Pillow reportlab pandas "markitdown[all]" openpyxl
 
-# Python (into system Python, for bare `python` commands)
+# Python (into system Python)
 pip3 install defusedxml lxml pypdf pdfplumber pdf2image Pillow reportlab pandas "markitdown[all]" openpyxl
 
 # Node.js (if available)
@@ -201,4 +171,4 @@ npm install -g docx pptxgenjs react-icons react react-dom sharp
 
 ## License
 
-Each skill carries its own license — see the `LICENSE.txt` file inside each skill directory.
+Each skill carries its own license — see the `LICENSE.txt` or `LICENSE` file inside each skill directory.

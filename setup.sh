@@ -62,21 +62,25 @@ fi
 # ─── Copy skills to /opt/data/skills ──────────────────────────────────────
 
 echo ""
-echo "==> Checking /opt/data/skills..."
+echo "==> Setting up /opt/data/skills..."
 
+# Remove all existing skills
+if [[ -d "${SKILLS_DIR}" ]]; then
+	echo "    Removing existing skills..."
+	rm -rf "${SKILLS_DIR}"
+fi
 mkdir -p "${SKILLS_DIR}"
 
-for skill in docx-odt pdf pptx xlsx-ods; do
-	SKILL_PATH="${SKILLS_DIR}/${skill}"
-	if [[ -d "${SKILL_PATH}" ]]; then
-		echo "    Skill '${skill}' already exists — replacing..."
-		rm -rf "${SKILL_PATH}"
-	fi
-	echo "    Copying ${skill}..."
-	cp -a "${SCRIPT_DIR}/${skill}" "${SKILL_PATH}"
+# Copy category directories (excluding PREREQUESITES-DEPENDENCIES/)
+echo "    Copying skills..."
+for category_dir in "${SCRIPT_DIR}"/*/; do
+	category_name="$(basename "${category_dir}")"
+	# Skip PREREQUESITES-DEPENDENCIES and any non-skill dirs (like the script itself)
+	[[ "${category_name}" == "PREREQUESITES-DEPENDENCIES" ]] && continue
+	cp -a "${category_dir}" "${SKILLS_DIR}/${category_name}"
 done
 
-echo "    Done. Skills installed:"
+echo "    Done. Skill categories installed:"
 find "${SKILLS_DIR}" -maxdepth 1 -mindepth 1 -type d | sort | while read -r d; do
 	echo "      $(basename "$d")"
 done
@@ -286,6 +290,15 @@ else
 	echo "    The following npm packages were SKIPPED: ${NPM_GLOBAL_PKGS[*]}"
 	echo "    Install Node.js first (e.g., 'apt install nodejs npm') and re-run this script."
 fi
+
+# ─── Disable select Hermes built-in skills ─────────────────────────────────
+
+echo ""
+echo "==> Disabling Hermes built-in skills that conflict with provisioned ones..."
+
+"${HERMES_ROOT}/.venv/bin/hermes" config set skills.disabled '["blogwatcher","llm-wiki","arxiv","excalidraw","obsidian"]' || {
+	echo "WARNING: Failed to set skills.disabled config — continuing."
+}
 
 # ─── Done ───────────────────────────────────────────────────────────────────
 
