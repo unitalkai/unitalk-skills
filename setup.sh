@@ -301,7 +301,7 @@ DISABLE_SKILLS=(
   "obsidian"
 )
 
-CONFIG_PATH="${HOME}/.hermes/config.yaml"
+CONFIG_PATH="${HERMES_ROOT}/.hermes/config.yaml"
 
 if command -v python3 &>/dev/null && "${VENV_PYTHON}" -c "import yaml" 2>/dev/null; then
 	if [ -f "$CONFIG_PATH" ]; then
