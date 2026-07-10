@@ -182,6 +182,8 @@ CORE_PYTHON=(
 	markitdown[all]
 	# xlsx
 	openpyxl
+	# config management
+	PyYAML
 )
 
 echo "    Installing core packages into venv: ${CORE_PYTHON[*]}"
@@ -286,14 +288,53 @@ else
 	echo "    Install Node.js first (e.g., 'apt install nodejs npm') and re-run this script."
 fi
 
-# ─── Disable select Hermes built-in skills ─────────────────────────────────
+# ─── Disable built-in skills that conflict with provisioned ones ──────────
 
 echo ""
-echo "==> Disabling Hermes built-in skills that conflict with provisioned ones..."
+echo "==> Disabling built-in skills that conflict with provisioned ones..."
 
-"${HERMES_ROOT}/.venv/bin/hermes" config set skills.disabled '["blogwatcher","llm-wiki","arxiv","excalidraw","obsidian"]' || {
-	echo "WARNING: Failed to set skills.disabled config — continuing."
-}
+DISABLE_SKILLS=(
+  "blogwatcher"
+  "llm-wiki"
+  "arxiv"
+  "excalidraw"
+  "obsidian"
+)
+
+CONFIG_PATH="${HOME}/.hermes/config.yaml"
+
+if command -v python3 &>/dev/null && "${VENV_PYTHON}" -c "import yaml" 2>/dev/null; then
+	python3 -c "
+import yaml, sys
+
+config_path = '${CONFIG_PATH}'
+
+try:
+    with open(config_path) as f:
+        config = yaml.safe_load(f) or {}
+except FileNotFoundError:
+    print(f'WARNING: Config file not found at {config_path} — skipping.')
+    sys.exit(0)
+
+skills = config.setdefault('skills', {})
+existing = set(skills.get('disabled') or [])
+
+to_disable = set('''${DISABLE_SKILLS[*]}'''.split())
+merged = sorted(existing | to_disable)
+
+if merged:
+    skills['disabled'] = merged
+    with open(config_path, 'w') as f:
+        yaml.safe_dump(config, f, default_flow_style=False, sort_keys=False)
+    print(f'    Disabled skills ({len(merged)} total): {merged}')
+else:
+    print('    No changes needed')
+" || {
+		echo "WARNING: Failed to update skills config — continuing."
+	}
+else
+	echo "WARNING: python3 or PyYAML not available — skipping skills.disable config."
+fi
 
 # ─── Grant permissions to hermes user ─────────────────────────────────────
 
