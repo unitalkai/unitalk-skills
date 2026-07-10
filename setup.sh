@@ -295,6 +295,14 @@ echo "==> Disabling Hermes built-in skills that conflict with provisioned ones..
 	echo "WARNING: Failed to set skills.disabled config — continuing."
 }
 
+# ─── Grant permissions to hermes user ─────────────────────────────────────
+
+echo ""
+echo "==> Granting ownership of ${SKILLS_DIR} to hermes:hermes..."
+chown -R hermes:hermes "${SKILLS_DIR}" || {
+	echo "WARNING: Failed to chown skills directory — continuing."
+}
+
 # ─── Done ───────────────────────────────────────────────────────────────────
 
 echo ""
