@@ -53,11 +53,6 @@ if [[ "$(id -u)" -ne 0 ]]; then
 	exit 1
 fi
 
-if [[ ! -d "${SCRIPT_DIR}/docx-odt" || ! -d "${SCRIPT_DIR}/pdf" || ! -d "${SCRIPT_DIR}/pptx" || ! -d "${SCRIPT_DIR}/xlsx-ods" ]]; then
-	echo "ERROR: Skill directories (docx-odt/, pdf/, pptx/, xlsx-ods/) not found next to setup.sh"
-	echo "       Expected them in: ${SCRIPT_DIR}/"
-	exit 1
-fi
 
 # ─── Copy skills to /opt/data/skills ──────────────────────────────────────
 
