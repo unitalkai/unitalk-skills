@@ -304,34 +304,38 @@ DISABLE_SKILLS=(
 CONFIG_PATH="${HOME}/.hermes/config.yaml"
 
 if command -v python3 &>/dev/null && "${VENV_PYTHON}" -c "import yaml" 2>/dev/null; then
-	python3 -c "
-import yaml, sys
-
-config_path = '${CONFIG_PATH}'
-
-try:
-    with open(config_path) as f:
-        config = yaml.safe_load(f) or {}
-except FileNotFoundError:
-    print(f'WARNING: Config file not found at {config_path} — skipping.')
-    sys.exit(0)
-
+	if [ -f "$CONFIG_PATH" ]; then
+		# Merge into existing config
+		python3 -c "
+import yaml
+with open('$CONFIG_PATH') as f:
+    config = yaml.safe_load(f) or {}
 skills = config.setdefault('skills', {})
 existing = set(skills.get('disabled') or [])
-
-to_disable = set('''${DISABLE_SKILLS[*]}'''.split())
-merged = sorted(existing | to_disable)
-
-if merged:
+merged = sorted(existing | set('''${DISABLE_SKILLS[*]}'''.split()))
+if merged != (skills.get('disabled') or []):
     skills['disabled'] = merged
-    with open(config_path, 'w') as f:
+    with open('$CONFIG_PATH', 'w') as f:
         yaml.safe_dump(config, f, default_flow_style=False, sort_keys=False)
     print(f'    Disabled skills ({len(merged)} total): {merged}')
 else:
     print('    No changes needed')
 " || {
-		echo "WARNING: Failed to update skills config — continuing."
-	}
+			echo "WARNING: Failed to update skills config — continuing."
+		}
+	else
+		# Bootstrap fresh config with just the disabled list
+		mkdir -p "$(dirname "$CONFIG_PATH")"
+		python3 -c "
+import yaml
+config = {'skills': {'disabled': sorted('''${DISABLE_SKILLS[*]}'''.split())}}
+with open('$CONFIG_PATH', 'w') as f:
+    yaml.safe_dump(config, f, default_flow_style=False)
+print('    Created config.yaml with disabled skills')
+" || {
+			echo "WARNING: Failed to create config.yaml — continuing."
+		}
+	fi
 else
 	echo "WARNING: python3 or PyYAML not available — skipping skills.disable config."
 fi
