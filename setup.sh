@@ -72,7 +72,7 @@ echo "    Copying skills..."
 for category_dir in "${SCRIPT_DIR}"/*/; do
 	category_name="$(basename "${category_dir}")"
 	# Skip PREREQUESITES-DEPENDENCIES and any non-skill dirs (like the script itself)
-	[[ "${category_name}" == "PREREQUESITES-DEPENDENCIES" ]] && continue
+	[[ "${category_name}" == "PREREQUESITES-DEPENDENCIES" || "${category_name}" == "profiles" ]] && continue
 	cp -a "${category_dir}" "${SKILLS_DIR}/${category_name}"
 done
 

@@ -46,6 +46,7 @@ When a user asks for help with something, identify:
 Before running a CLI search, check the [skills.sh leaderboard](https://skills.sh/) to see if a well-known skill already exists for the domain. The leaderboard ranks skills by total installs, surfacing the most popular and battle-tested options.
 
 For example, top skills for web development include:
+
 - `vercel-labs/agent-skills` — React, Next.js, web design (100K+ installs each)
 - `anthropics/skills` — Frontend design, document processing (100K+ installs)
 
@@ -97,11 +98,48 @@ Learn more: https://skills.sh/vercel-labs/agent-skills/react-best-practices
 
 If the user wants to proceed, you can install the skill for them:
 
-```bash
-npx skills add <owner/repo@skill> -g -y
-```
+### Custom Hermes Installation Rule
 
-The `-g` flag installs globally (user-level) and `-y` skips confirmation prompts.
+When the user or context requests a skill installation, use this sequence so the skill is isolated during download and then stored in the Hermes persistent home directory.
+
+1. Classify the skill into exactly one existing category based on its primary user outcome:
+   - `code`: software development, programming tools, developer workflows, or technical implementation.
+   - `discussion-and-writing`: writing, communication, brainstorming, personal knowledge workflows, or skill creation.
+   - `documents-and-analysis`: document creation or transformation, spreadsheets, presentations, PDFs, structured data, or analysis.
+   - `medias`: image, audio, video, visual design, or other media production and editing.
+   - `optimization-and-security`: performance, reliability, infrastructure optimization, security, or privacy.
+   - `web-and-research`: web browsing, online research, discovery, mapping, or external information gathering.
+
+   If a skill spans multiple areas, select the category that owns its main workflow. Do not create a catch-all category.
+
+2. Confirm that `/opt/data/skills/<category>/` already exists. Do not create category directories; if the selected category directory is unavailable, stop and ask the user how to proceed.
+
+3. Create an isolated temporary workspace and install the skill locally:
+
+   ```bash
+   mkdir -p /tmp/skill-download && cd /tmp/skill-download
+   npx skills add <owner/repo@skill> -y
+   ```
+
+4. Identify the downloaded skill directory. The CLI normally places it in `.agents/skills/`, but it may use a local `skills/` directory instead. Copy the downloaded skill folder into the selected category directory, preserving its folder name:
+
+   ```bash
+   cp -r /tmp/skill-download/.agents/skills/<skill-folder> /opt/data/skills/<category>/
+   ```
+
+   Or, when the CLI used the local directory:
+
+   ```bash
+   cp -r /tmp/skill-download/skills/<skill-folder> /opt/data/skills/<category>/
+   ```
+
+5. Clean up the temporary workspace:
+
+   ```bash
+   rm -rf /tmp/skill-download
+   ```
+
+Never install globally, create a new category, or copy a skill directly into `/opt/data/skills/`; the destination must always be `/opt/data/skills/<category>/<skill-folder>/`.
 
 ## Common Skill Categories
 
