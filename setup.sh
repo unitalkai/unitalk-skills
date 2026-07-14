@@ -2,8 +2,8 @@
 #
 # setup.sh — Hermes Skills Provisioning Script
 #
-# Copies all skill directories to /opt/data/skills and installs all
-# prerequisites: OS packages, Python libraries, and Node.js global packages.
+# Updates repository-provided skill directories in /opt/data/skills and installs
+# all prerequisites: OS packages, Python libraries, and Node.js global packages.
 #
 # Usage:
 #   ./setup.sh              # Required deps only
@@ -55,25 +55,37 @@ if [[ "$(id -u)" -ne 0 ]]; then
 fi
 
 
-# ─── Copy skills to /opt/data/skills ──────────────────────────────────────
+# ─── Sync skills to /opt/data/skills ──────────────────────────────────────
 
 echo ""
 echo "==> Setting up /opt/data/skills..."
 
-# Remove all existing skills
-if [[ -d "${SKILLS_DIR}" ]]; then
-	echo "    Removing existing skills..."
-	rm -rf "${SKILLS_DIR}"
-fi
 mkdir -p "${SKILLS_DIR}"
 
-# Copy category directories (excluding PREREQUESITES-DEPENDENCIES/)
-echo "    Copying skills..."
+# Refresh repository-provided skills while preserving user-created skills.
+echo "    Updating repository skills..."
 for category_dir in "${SCRIPT_DIR}"/*/; do
 	category_name="$(basename "${category_dir}")"
 	# Skip PREREQUESITES-DEPENDENCIES and any non-skill dirs (like the script itself)
 	[[ "${category_name}" == "PREREQUESITES-DEPENDENCIES" || "${category_name}" == "profiles" ]] && continue
-	cp -a "${category_dir}" "${SKILLS_DIR}/${category_name}"
+
+	destination_category_dir="${SKILLS_DIR}/${category_name}"
+	mkdir -p "${destination_category_dir}"
+
+	for skill_dir in "${category_dir}"*/; do
+		[[ -d "${skill_dir}" ]] || continue
+		skill_name="$(basename "${skill_dir}")"
+		destination_skill_dir="${destination_category_dir}/${skill_name}"
+
+		if [[ -e "${destination_skill_dir}" || -L "${destination_skill_dir}" ]]; then
+			echo "      Updating ${category_name}/${skill_name}"
+			rm -rf "${destination_skill_dir}"
+		else
+			echo "      Installing ${category_name}/${skill_name}"
+		fi
+
+		cp -a "${skill_dir}" "${destination_category_dir}/${skill_name}"
+	done
 done
 
 echo "    Done. Skill categories installed:"
