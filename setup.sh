@@ -55,37 +55,25 @@ if [[ "$(id -u)" -ne 0 ]]; then
 fi
 
 
-# ─── Sync skills to /opt/data/skills ──────────────────────────────────────
+# ─── Copy skills to /opt/data/skills ──────────────────────────────────────
 
 echo ""
 echo "==> Setting up /opt/data/skills..."
 
+# Remove all existing skills
+if [[ -d "${SKILLS_DIR}" ]]; then
+	echo "    Removing existing skills..."
+	rm -rf "${SKILLS_DIR}"
+fi
 mkdir -p "${SKILLS_DIR}"
 
-# Refresh repository-provided skills while preserving user-created skills.
-echo "    Updating repository skills..."
+# Copy category directories (excluding PREREQUESITES-DEPENDENCIES/)
+echo "    Copying skills..."
 for category_dir in "${SCRIPT_DIR}"/*/; do
 	category_name="$(basename "${category_dir}")"
 	# Skip PREREQUESITES-DEPENDENCIES and any non-skill dirs (like the script itself)
 	[[ "${category_name}" == "PREREQUESITES-DEPENDENCIES" || "${category_name}" == "profiles" ]] && continue
-
-	destination_category_dir="${SKILLS_DIR}/${category_name}"
-	mkdir -p "${destination_category_dir}"
-
-	for skill_dir in "${category_dir}"*/; do
-		[[ -d "${skill_dir}" ]] || continue
-		skill_name="$(basename "${skill_dir}")"
-		destination_skill_dir="${destination_category_dir}/${skill_name}"
-
-		if [[ -e "${destination_skill_dir}" || -L "${destination_skill_dir}" ]]; then
-			echo "      Updating ${category_name}/${skill_name}"
-			rm -rf "${destination_skill_dir}"
-		else
-			echo "      Installing ${category_name}/${skill_name}"
-		fi
-
-		cp -a "${skill_dir}" "${destination_category_dir}/${skill_name}"
-	done
+	cp -a "${category_dir}" "${SKILLS_DIR}/${category_name}"
 done
 
 echo "    Done. Skill categories installed:"
