@@ -60,6 +60,15 @@ fi
 echo ""
 echo "==> Setting up /opt/data/skills..."
 
+# Hermes re-seeds bundled skills on startup unless the active profile opts out.
+# Do this before replacing the skills directory so a subsequent deployment does
+# not restore the image's bundled skills alongside the provisioned set.
+echo "    Opting out of Hermes bundled-skill seeding..."
+HERMES_HOME="${HERMES_HOME}" "${HERMES_ROOT}/.venv/bin/hermes" skills opt-out || {
+	echo "ERROR: Failed to opt out of Hermes bundled-skill seeding."
+	exit 1
+}
+
 # Remove all existing skills
 if [[ -d "${SKILLS_DIR}" ]]; then
 	echo "    Removing existing skills..."
