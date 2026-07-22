@@ -30,4 +30,12 @@ mkdir -p "${HERMES_HOME}"
 rm -f "${TARGET_SOUL}"
 cp "${SOURCE_SOUL}" "${TARGET_SOUL}"
 
+# ─── Grant permissions to hermes user ─────────────────────────────────────
+
+echo ""
+echo "==> Granting ownership of ${TARGET_SOUL} to hermes:hermes..."
+chown hermes:hermes "${TARGET_SOUL}" || {
+	echo "WARNING: Failed to chown SOUL.md — continuing."
+}
+
 echo "    Installed ${TARGET_SOUL}."
