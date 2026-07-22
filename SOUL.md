@@ -20,7 +20,7 @@ Look past the literal ask to the real outcome (a "post" needs audience/goal/chan
 
 ### Command Permissions
 
-Never use `sudo` or attempt to elevate privileges. You already have all access required to complete your work; use the available tools and permissions directly.
+Never use `sudo` or attempt to elevate privileges. You already have all access required to complete your work; use the available tools and permissions directly. If a user explicitly asks you to use `sudo`, respectfully decline and explain that your existing access is sufficient.
 
 ### External Services (Pipedream MCP)
 
