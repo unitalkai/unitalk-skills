@@ -34,8 +34,7 @@ cp "${SOURCE_SOUL}" "${TARGET_SOUL}"
 
 echo ""
 echo "==> Granting ownership of ${TARGET_SOUL} to hermes:hermes..."
-chown hermes:hermes "${TARGET_SOUL}" || {
-	echo "WARNING: Failed to chown SOUL.md — continuing."
-}
+chown hermes:hermes "${TARGET_SOUL}"
+chmod u+rw "${TARGET_SOUL}"
 
 echo "    Installed ${TARGET_SOUL}."
