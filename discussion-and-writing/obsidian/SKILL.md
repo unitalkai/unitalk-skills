@@ -1,6 +1,6 @@
 ---
 name: obsidian
-description: Read, search, create, and edit notes in the Obsidian vault.
+description: Reads, searches, creates, and edits notes in the user's Obsidian vault. Load when the user references their personal knowledge base or asks about notes stored in Obsidian.
 platforms: [linux, macos, windows]
 ---
 

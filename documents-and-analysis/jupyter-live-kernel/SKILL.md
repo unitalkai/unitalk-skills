@@ -1,6 +1,6 @@
 ---
 name: jupyter-live-kernel
-description: "Iterative Python via live Jupyter kernel (hamelnb)."
+description: Runs iterative Python analysis via a live Jupyter kernel. Best for exploratory data work, visualization prototyping, and analysis that benefits from persistent state between cells.
 version: 1.0.0
 author: Hermes Agent
 license: MIT
@@ -19,11 +19,11 @@ state incrementally, explore APIs, inspect DataFrames, or iterate on complex cod
 
 ## When to Use This vs Other Tools
 
-| Tool | Use When |
-|------|----------|
+| Tool           | Use When                                                                                 |
+| -------------- | ---------------------------------------------------------------------------------------- |
 | **This skill** | Iterative exploration, state across steps, data science, ML, "let me try this and check" |
-| `execute_code` | One-shot scripts needing hermes tool access (web_search, file ops). Stateless. |
-| `terminal` | Shell commands, builds, installs, git, process management |
+| `execute_code` | One-shot scripts needing hermes tool access (web_search, file ops). Stateless.           |
+| `terminal`     | Shell commands, builds, installs, git, process management                                |
 
 **Rule of thumb:** If you'd want a Jupyter notebook for the task, use this skill.
 
@@ -36,11 +36,13 @@ state incrementally, explore APIs, inspect DataFrames, or iterate on complex cod
 ## Setup
 
 The hamelnb script location:
+
 ```
 SCRIPT="$HOME/.agent-skills/hamelnb/skills/jupyter-live-kernel/scripts/jupyter_live_kernel.py"
 ```
 
 If not cloned yet:
+
 ```
 git clone https://github.com/hamelsmu/hamelnb.git ~/.agent-skills/hamelnb
 ```
@@ -48,11 +50,13 @@ git clone https://github.com/hamelsmu/hamelnb.git ~/.agent-skills/hamelnb
 ### Starting JupyterLab
 
 Check if a server is already running:
+
 ```
 uv run "$SCRIPT" servers
 ```
 
 If no servers found, start one:
+
 ```
 jupyter-lab --no-browser --port=8888 --notebook-dir=$HOME/notebooks \
   --IdentityProvider.token='' --ServerApp.password='' > /tmp/jupyter.log 2>&1 &
@@ -64,11 +68,14 @@ Note: Token/password disabled for local agent access. The server runs headless.
 ### Creating a Notebook for REPL Use
 
 If you just need a REPL (no existing notebook), create a minimal notebook file:
+
 ```
 mkdir -p ~/notebooks
 ```
+
 Write a minimal .ipynb JSON file with one empty code cell, then start a kernel
 session via the Jupyter REST API:
+
 ```
 curl -s -X POST http://127.0.0.1:8888/api/sessions \
   -H "Content-Type: application/json" \
@@ -95,6 +102,7 @@ uv run "$SCRIPT" execute --path <notebook.ipynb> --code '<python code>' --compac
 State persists across execute calls. Variables, imports, objects all survive.
 
 Multi-line code works with $'...' quoting:
+
 ```
 uv run "$SCRIPT" execute --path scratch.ipynb --code $'import os\nfiles = os.listdir(".")\nprint(f"Found {len(files)} files")' --compact
 ```

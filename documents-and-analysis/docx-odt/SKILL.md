@@ -1,6 +1,6 @@
 ---
 name: docx-odt
-description: "Use this skill whenever the user wants to create, read, edit, or manipulate Word documents (.docx files), OpenDocument text files (.odt), or plain text files (.txt) intended to become formatted documents. Triggers include: any mention of 'Word doc', 'word document', '.docx', '.doc', '.odt', 'OpenDocument text', or requests to produce professional documents with formatting like tables of contents, headings, page numbers, or letterheads. Also use when extracting or reorganizing content from .docx, .odt, or .txt files, converting between these formats (e.g. 'convert this odt to docx', 'turn this txt into a Word doc'), inserting or replacing images in documents, performing find-and-replace in Word files, working with tracked changes or comments, or converting content into a polished Word document. If the user asks for a 'report', 'memo', 'letter', 'template', or similar deliverable as a Word, ODT, or .docx file, use this skill. Do NOT use for PDFs, spreadsheets, Google Docs, or general coding tasks unrelated to document generation. Do NOT use for plain .txt file reads/writes with no document-formatting component — a simple text file edit doesn't need this skill."
+description: Creates, reads, edits, and manipulates Word documents (.docx) and OpenDocument text files (.odt). Load when the user needs formatted documents, reports, or text file conversion.
 license: Proprietary. LICENSE.txt has complete terms
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: blogwatcher
-description: "Monitor blogs and RSS/Atom feeds via blogwatcher-cli tool."
+description: Monitors blogs, RSS feeds, and Atom feeds for new content via blogwatcher cli-tool. Detects changes and summarizes updates. Load when the user wants to track publications or stay informed on specific sources.
 version: 2.0.0
 author: JulienTant (fork of Hyaxia/blogwatcher)
 license: MIT
@@ -80,13 +80,13 @@ The binary name changed from `blogwatcher` to `blogwatcher-cli`.
 
 All flags can be set via environment variables with the `BLOGWATCHER_` prefix:
 
-| Variable | Description |
-|---|---|
-| `BLOGWATCHER_DB` | Path to SQLite database file |
-| `BLOGWATCHER_WORKERS` | Number of concurrent scan workers (default: 8) |
-| `BLOGWATCHER_SILENT` | Only output "scan done" when scanning |
-| `BLOGWATCHER_YES` | Skip confirmation prompts |
-| `BLOGWATCHER_CATEGORY` | Default filter for articles by category |
+| Variable               | Description                                    |
+| ---------------------- | ---------------------------------------------- |
+| `BLOGWATCHER_DB`       | Path to SQLite database file                   |
+| `BLOGWATCHER_WORKERS`  | Number of concurrent scan workers (default: 8) |
+| `BLOGWATCHER_SILENT`   | Only output "scan done" when scanning          |
+| `BLOGWATCHER_YES`      | Skip confirmation prompts                      |
+| `BLOGWATCHER_CATEGORY` | Default filter for articles by category        |
 
 ## Example Output
 

@@ -1,7 +1,7 @@
 ---
 name: ideation
 title: Creative Ideation — Constraint-Driven Project Generation
-description: "Generate project ideas via creative constraints."
+description: Generates creative ideas and project concepts from user-provided constraints, goals, or problem statements. Use for brainstorming sessions, feature ideation, or content concepts.
 version: 1.0.0
 author: SHL0MS
 license: MIT
@@ -89,16 +89,16 @@ See `references/full-prompt-library.md` for 30+ additional constraints across co
 
 ## Matching Constraints to Users
 
-| User says | Pick from |
-|-----------|-----------|
-| "I want to build something" (no direction) | Random — any constraint |
-| "I'm learning [language]" | Blatantly copy something, Automate the annoying thing |
-| "I want something weird" | Hostile UI, Frankenstein week, Start at the punchline |
-| "I want something useful" | Solve your own itch, The CLI that should exist, Automate the annoying thing |
-| "I want something beautiful" | Do a lot of math, One million of something |
-| "I'm burned out" | High concept low effort, Make something that dies |
-| "Weekend project" | Nothing new except glue, Start at the punchline |
-| "I want a challenge" | One million of something, Subtract, Take two |
+| User says                                  | Pick from                                                                   |
+| ------------------------------------------ | --------------------------------------------------------------------------- |
+| "I want to build something" (no direction) | Random — any constraint                                                     |
+| "I'm learning [language]"                  | Blatantly copy something, Automate the annoying thing                       |
+| "I want something weird"                   | Hostile UI, Frankenstein week, Start at the punchline                       |
+| "I want something useful"                  | Solve your own itch, The CLI that should exist, Automate the annoying thing |
+| "I want something beautiful"               | Do a lot of math, One million of something                                  |
+| "I'm burned out"                           | High concept low effort, Make something that dies                           |
+| "Weekend project"                          | Nothing new except glue, Start at the punchline                             |
+| "I want a challenge"                       | One million of something, Subtract, Take two                                |
 
 ## Output Format
 

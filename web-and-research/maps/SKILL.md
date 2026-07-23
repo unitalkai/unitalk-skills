@@ -1,13 +1,27 @@
 ---
 name: maps
-description: "Geocode, POIs, routes, timezones via OpenStreetMap/OSRM."
+description: Geocoding, points of interest, routing, and timezone lookups via OpenStreetMap/OSRM. Use for location queries, directions, nearby places, or map-based data enrichment.
 version: 1.2.0
 author: Mibayy
 license: MIT
 platforms: [linux, macos, windows]
 metadata:
   hermes:
-    tags: [maps, geocoding, places, routing, distance, directions, nearby, location, openstreetmap, nominatim, overpass, osrm]
+    tags:
+      [
+        maps,
+        geocoding,
+        places,
+        routing,
+        distance,
+        directions,
+        nearby,
+        location,
+        openstreetmap,
+        nominatim,
+        overpass,
+        osrm,
+      ]
     category: productivity
     requires_toolsets: [terminal]
     supersedes: [find-nearby]
@@ -160,17 +174,21 @@ current.
 ## Workflow Examples
 
 **"Find Italian restaurants near the Colosseum":**
+
 1. `nearby --near "Colosseum Rome" --category restaurant --radius 500`
    — one command, auto-geocoded
 
 **"What's near this location pin they sent?":**
+
 1. Extract lat/lon from the Telegram message
 2. `nearby LAT LON cafe --radius 1500`
 
 **"How do I walk from hotel to conference center?":**
+
 1. `directions "Hotel Name" --to "Conference Center" --mode walking`
 
 **"What restaurants are in downtown Seattle?":**
+
 1. `area "Downtown Seattle"` → get bounding box
 2. `bbox S W N E restaurant --limit 30`
 

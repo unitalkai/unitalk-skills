@@ -1,6 +1,6 @@
 ---
 name: nano-pdf
-description: "Edit PDF text/typos/titles via nano-pdf CLI (NL prompts)."
+description: Edits PDF text, corrects typos, and modifies titles using natural language commands via nano-pdf CLI. Load for quick text fixes in PDFs without full document recreation.
 version: 1.0.0
 author: community
 license: MIT

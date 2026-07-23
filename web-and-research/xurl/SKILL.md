@@ -1,6 +1,6 @@
 ---
 name: xurl
-description: "X/Twitter via xurl CLI: post, search, DM, media, v2 API."
+description: Posts, searches, reads timelines, sends DMs, and manages media on X/Twitter. Load when the user wants to tweet, check mentions, or interact with their Twitter account.
 version: 1.1.1
 author: xdevplatform + openclaw + Hermes Agent
 license: MIT
@@ -19,6 +19,7 @@ metadata:
 `xurl` is the X developer platform's official CLI for the X API. It supports shortcut commands for common actions AND raw curl-style access to any v2 endpoint. All commands return JSON to stdout.
 
 Use this skill for:
+
 - posting, replying, quoting, deleting posts
 - searching posts and reading timelines/mentions
 - liking, reposting, bookmarking
@@ -91,16 +92,21 @@ These steps must be performed by the user directly, NOT by the agent, because th
    xurl auth apps add my-app --client-id YOUR_CLIENT_ID --client-secret YOUR_CLIENT_SECRET
    ```
 5. Authenticate (specify `--app` to bind the token to your app):
+
    ```bash
    xurl auth oauth2 --app my-app
    ```
+
    (This opens a browser for the OAuth 2.0 PKCE flow.)
 
    If X returns a `UsernameNotFound` error or 403 on the post-OAuth `/2/users/me` lookup, pass your handle explicitly (xurl v1.1.0+):
+
    ```bash
    xurl auth oauth2 --app my-app YOUR_USERNAME
    ```
+
    This binds the token to your handle and skips the broken `/2/users/me` call.
+
 6. Set the app as default so all commands use it:
    ```bash
    xurl auth default my-app
@@ -116,49 +122,52 @@ After this, the agent can use any command below without further setup. OAuth 2.0
 > **Common pitfall:** If you omit `--app my-app` from `xurl auth oauth2`, the OAuth token is saved to the built-in `default` app profile — which has no client-id or client-secret. Commands will fail with auth errors even though the OAuth flow appeared to succeed. If you hit this, re-run `xurl auth oauth2 --app my-app` and `xurl auth default my-app`.
 
 > **Docker HOME pitfall:** In the official Hermes Docker layout, `/opt/data` is `HERMES_HOME`, but Hermes tool subprocesses use `/opt/data/home` as `HOME`. That means `~/.xurl` resolves to `/opt/data/home/.xurl` for Hermes-run `xurl` commands, not `/opt/data/.xurl`. Run the user setup with the same HOME:
+>
 > ```bash
 > HOME=/opt/data/home xurl auth apps add my-app --client-id YOUR_CLIENT_ID --client-secret YOUR_CLIENT_SECRET
 > HOME=/opt/data/home xurl auth oauth2 --app my-app YOUR_USERNAME
 > HOME=/opt/data/home xurl auth default my-app YOUR_USERNAME
 > HOME=/opt/data/home xurl auth status
 > ```
+>
 > If `HOME=/opt/data xurl auth status` succeeds but `HOME=/opt/data/home xurl auth status` shows no apps or tokens, Hermes tool calls will not see the credentials.
 
 ---
 
 ## Quick Reference
 
-| Action | Command |
-| --- | --- |
-| Post | `xurl post "Hello world!"` |
-| Reply | `xurl reply POST_ID "Nice post!"` |
-| Quote | `xurl quote POST_ID "My take"` |
-| Delete a post | `xurl delete POST_ID` |
-| Read a post | `xurl read POST_ID` |
-| Search posts | `xurl search "QUERY" -n 10` |
-| Who am I | `xurl whoami` |
-| Look up a user | `xurl user @handle` |
-| Home timeline | `xurl timeline -n 20` |
-| Mentions | `xurl mentions -n 10` |
-| Like / Unlike | `xurl like POST_ID` / `xurl unlike POST_ID` |
-| Repost / Undo | `xurl repost POST_ID` / `xurl unrepost POST_ID` |
-| Bookmark / Remove | `xurl bookmark POST_ID` / `xurl unbookmark POST_ID` |
-| List bookmarks / likes | `xurl bookmarks -n 10` / `xurl likes -n 10` |
-| Follow / Unfollow | `xurl follow @handle` / `xurl unfollow @handle` |
-| Following / Followers | `xurl following -n 20` / `xurl followers -n 20` |
-| Block / Unblock | `xurl block @handle` / `xurl unblock @handle` |
-| Mute / Unmute | `xurl mute @handle` / `xurl unmute @handle` |
-| Send DM | `xurl dm @handle "message"` |
-| List DMs | `xurl dms -n 10` |
-| Upload media | `xurl media upload path/to/file.mp4` |
-| Media status | `xurl media status MEDIA_ID` |
-| List apps | `xurl auth apps list` |
-| Remove app | `xurl auth apps remove NAME` |
-| Set default app | `xurl auth default APP_NAME [USERNAME]` |
-| Per-request app | `xurl --app NAME /2/users/me` |
-| Auth status | `xurl auth status` |
+| Action                 | Command                                             |
+| ---------------------- | --------------------------------------------------- |
+| Post                   | `xurl post "Hello world!"`                          |
+| Reply                  | `xurl reply POST_ID "Nice post!"`                   |
+| Quote                  | `xurl quote POST_ID "My take"`                      |
+| Delete a post          | `xurl delete POST_ID`                               |
+| Read a post            | `xurl read POST_ID`                                 |
+| Search posts           | `xurl search "QUERY" -n 10`                         |
+| Who am I               | `xurl whoami`                                       |
+| Look up a user         | `xurl user @handle`                                 |
+| Home timeline          | `xurl timeline -n 20`                               |
+| Mentions               | `xurl mentions -n 10`                               |
+| Like / Unlike          | `xurl like POST_ID` / `xurl unlike POST_ID`         |
+| Repost / Undo          | `xurl repost POST_ID` / `xurl unrepost POST_ID`     |
+| Bookmark / Remove      | `xurl bookmark POST_ID` / `xurl unbookmark POST_ID` |
+| List bookmarks / likes | `xurl bookmarks -n 10` / `xurl likes -n 10`         |
+| Follow / Unfollow      | `xurl follow @handle` / `xurl unfollow @handle`     |
+| Following / Followers  | `xurl following -n 20` / `xurl followers -n 20`     |
+| Block / Unblock        | `xurl block @handle` / `xurl unblock @handle`       |
+| Mute / Unmute          | `xurl mute @handle` / `xurl unmute @handle`         |
+| Send DM                | `xurl dm @handle "message"`                         |
+| List DMs               | `xurl dms -n 10`                                    |
+| Upload media           | `xurl media upload path/to/file.mp4`                |
+| Media status           | `xurl media status MEDIA_ID`                        |
+| List apps              | `xurl auth apps list`                               |
+| Remove app             | `xurl auth apps remove NAME`                        |
+| Set default app        | `xurl auth default APP_NAME [USERNAME]`             |
+| Per-request app        | `xurl --app NAME /2/users/me`                       |
+| Auth status            | `xurl auth status`                                  |
 
 Notes:
+
 - `POST_ID` accepts full URLs too (e.g. `https://x.com/user/status/1234567890`) — xurl extracts the ID.
 - Usernames work with or without a leading `@`.
 
@@ -303,13 +312,13 @@ xurl https://api.x.com/2/users/me
 
 ## Global Flags
 
-| Flag | Short | Description |
-| --- | --- | --- |
-| `--app` | | Use a specific registered app (overrides default) |
-| `--auth` | | Force auth type: `oauth1`, `oauth2`, or `app` |
-| `--username` | `-u` | Which OAuth2 account to use (if multiple exist) |
-| `--verbose` | `-v` | **Forbidden in agent sessions** — leaks auth headers |
-| `--trace` | `-t` | Add `X-B3-Flags: 1` trace header |
+| Flag         | Short | Description                                          |
+| ------------ | ----- | ---------------------------------------------------- |
+| `--app`      |       | Use a specific registered app (overrides default)    |
+| `--auth`     |       | Force auth type: `oauth1`, `oauth2`, or `app`        |
+| `--username` | `-u`  | Which OAuth2 account to use (if multiple exist)      |
+| `--verbose`  | `-v`  | **Forbidden in agent sessions** — leaks auth headers |
+| `--trace`    | `-t`  | Add `X-B3-Flags: 1` trace header                     |
 
 ---
 
@@ -336,7 +345,7 @@ All commands return JSON to stdout. Structure mirrors X API v2:
 Errors are also JSON:
 
 ```json
-{ "errors": [ { "message": "Not authorized", "code": 403 } ] }
+{ "errors": [{ "message": "Not authorized", "code": 403 }] }
 ```
 
 ---
@@ -344,18 +353,21 @@ Errors are also JSON:
 ## Common Workflows
 
 ### Post with an image
+
 ```bash
 xurl media upload photo.jpg
 xurl post "Check out this photo!" --media-id MEDIA_ID
 ```
 
 ### Reply to a conversation
+
 ```bash
 xurl read https://x.com/user/status/1234567890
 xurl reply 1234567890 "Here are my thoughts..."
 ```
 
 ### Search and engage
+
 ```bash
 xurl search "topic of interest" -n 10
 xurl like POST_ID_FROM_RESULTS
@@ -363,6 +375,7 @@ xurl reply POST_ID_FROM_RESULTS "Great point!"
 ```
 
 ### Check your activity
+
 ```bash
 xurl whoami
 xurl mentions -n 20
@@ -370,6 +383,7 @@ xurl timeline -n 20
 ```
 
 ### Multiple apps (credentials pre-configured manually)
+
 ```bash
 xurl auth default prod alice               # prod app, alice user
 xurl --app staging /2/users/me             # one-off against staging
@@ -400,16 +414,16 @@ xurl --app staging /2/users/me             # one-off against staging
 
 ## Troubleshooting
 
-| Symptom | Cause | Fix |
-| --- | --- | --- |
-| Auth errors after successful OAuth flow | Token saved to `default` app (no client-id/secret) instead of your named app | `xurl auth oauth2 --app my-app` then `xurl auth default my-app` |
-| `unauthorized_client` during OAuth | App type set to "Native App" in X dashboard | Change to "Web app, automated app or bot" in User Authentication Settings |
-| `UsernameNotFound` or 403 on `/2/users/me` right after OAuth | X not returning username reliably from `/2/users/me` | Re-run `xurl auth oauth2 --app my-app YOUR_USERNAME` (xurl v1.1.0+) to pass the handle explicitly |
-| 401 on every request | Token expired or wrong default app | Check `xurl auth status` — verify `▸` points to an app with oauth2 tokens |
-| `client-forbidden` / `client-not-enrolled` | X platform enrollment issue | Dashboard → Apps → Manage → Move to "Pay-per-use" package → Production environment |
-| `CreditsDepleted` | $0 balance on X API | Buy credits (min $5) in Developer Console → Billing |
-| `media processing failed` on image upload | Default category is `amplify_video` | Add `--category tweet_image --media-type image/png` |
-| Two "Client Secret" values in X dashboard | UI bug — first is actually Client ID | Confirm on the "Keys and tokens" page; ID ends in `MTpjaQ` |
+| Symptom                                                      | Cause                                                                        | Fix                                                                                               |
+| ------------------------------------------------------------ | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Auth errors after successful OAuth flow                      | Token saved to `default` app (no client-id/secret) instead of your named app | `xurl auth oauth2 --app my-app` then `xurl auth default my-app`                                   |
+| `unauthorized_client` during OAuth                           | App type set to "Native App" in X dashboard                                  | Change to "Web app, automated app or bot" in User Authentication Settings                         |
+| `UsernameNotFound` or 403 on `/2/users/me` right after OAuth | X not returning username reliably from `/2/users/me`                         | Re-run `xurl auth oauth2 --app my-app YOUR_USERNAME` (xurl v1.1.0+) to pass the handle explicitly |
+| 401 on every request                                         | Token expired or wrong default app                                           | Check `xurl auth status` — verify `▸` points to an app with oauth2 tokens                         |
+| `client-forbidden` / `client-not-enrolled`                   | X platform enrollment issue                                                  | Dashboard → Apps → Manage → Move to "Pay-per-use" package → Production environment                |
+| `CreditsDepleted`                                            | $0 balance on X API                                                          | Buy credits (min $5) in Developer Console → Billing                                               |
+| `media processing failed` on image upload                    | Default category is `amplify_video`                                          | Add `--category tweet_image --media-type image/png`                                               |
+| Two "Client Secret" values in X dashboard                    | UI bug — first is actually Client ID                                         | Confirm on the "Keys and tokens" page; ID ends in `MTpjaQ`                                        |
 
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: skill-creator
-description: ALWAYS use this skill when the user asks to create, edit, test, benchmark, or improve a skill — even if they phrase it casually like "turn this into a skill", "save this as a skill", "make a skill for X", "help me write a skill", "can you create a skill from our conversation", "optimize this skill", "run evals", "benchmark my skill", or "test this skill out". Also triggers on: modifying an existing skill, fixing a skill that's not working well, improving the skill's description for better triggering, or running the full eval/iterate loop (draft → test prompts → review results → revise → repeat). Do NOT reach for this skill for general code writing, project planning, or debugging unrelated tasks. Key signal: if the user's request involves Hermes skills as the subject (creating, editing, testing, packaging), load this skill.
+description: Creates, edits, tests, or improves Hermes agent skills. Load when the user wants to save a new capability, refine an existing skill, or convert a conversation into a reusable skill.
 ---
 
 # Skill Creator

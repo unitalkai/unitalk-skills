@@ -1,6 +1,6 @@
 ---
 name: himalaya
-description: "Himalaya CLI: IMAP/SMTP email from terminal."
+description: Reads, sends, and manages email via Himalaya CLI, IMAP/SMTP from the terminal. Use when the user needs to check inbox, compose replies, or manage email folders without leaving the agent.
 version: 1.1.0
 author: community
 license: MIT
@@ -92,7 +92,7 @@ folder.aliases.trash = "Trash"
 > `[accounts.NAME.folder.alias]` sub-section (singular `alias`).
 > v1.2.0 silently ignores that form — TOML parses fine, but the
 > alias resolver never reads it, so every lookup falls through to
-> the canonical name. On Gmail this means save-to-Sent fails *after*
+> the canonical name. On Gmail this means save-to-Sent fails _after_
 > SMTP delivery succeeds, and `himalaya message send` exits non-zero.
 > Any caller (agent, script, user) that retries on that exit code
 > will re-run the entire send — including SMTP — producing duplicate

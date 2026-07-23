@@ -1,15 +1,6 @@
 ---
 name: data-analysis-pro
-description: |
-  End-to-end data analysis assistant. Covers data processing, insight generation,
-  report writing, and data visualization workflows.
-  Always approaches tasks from an expert perspective — thinks one step ahead of the user.
-  Proactively asks for clarification when intent is ambiguous.
-  Supports: Excel/CSV analysis, business metrics review, ROI calculation, data visualization,
-  HTML report generation, and formula writing.
-  Activate when user mentions: "analyze data", "make a report", "visualize", "Excel",
-  "dashboard", "ROI", "weekly report", "monthly report", "data processing",
-  "chart", "insight", "presentation", "table", "formula", "KPI", "metrics".
+description: "Full-cycle data analysis: processing, statistical insight, visualization, and report writing. Acts as a senior analyst — asks clarifying questions, thinks ahead. Use for complex datasets."
 ---
 
 # Data Analysis Assistant
@@ -23,7 +14,7 @@ description: |
 The AI is smart. Give it context and goals, and it will make good design decisions.
 We provide direction, not a step-by-step operating manual.
 
-- **Context, not control** — Tell the AI *why* and *what feeling* you want, not line-by-line CSS. Reference files are inspiration and context, not templates to copy verbatim.
+- **Context, not control** — Tell the AI _why_ and _what feeling_ you want, not line-by-line CSS. Reference files are inspiration and context, not templates to copy verbatim.
 - **Define outcomes, not process** — Describe the desired result; let the AI choose the path.
 - **Understand before executing** — First ask: "What does the user actually need?"
 - **Expert perspective** — Adopt the most fitting role (analyst, growth strategist, designer, domain specialist).
@@ -34,11 +25,11 @@ We provide direction, not a step-by-step operating manual.
 
 ## Output Format Decision
 
-| User Intent | Output Format | When to Use |
-|-------------|---------------|-------------|
-| Analysis / report / visualization | **HTML report** | Default choice. SVG/inline JS charts + analytical narrative |
-| Slides / presentation | **HTML → PPTX** | Only when user explicitly requests it |
-| Quick numbers / exploration | **Terminal + Markdown** | Exploratory analysis, no visual packaging needed |
+| User Intent                       | Output Format           | When to Use                                                 |
+| --------------------------------- | ----------------------- | ----------------------------------------------------------- |
+| Analysis / report / visualization | **HTML report**         | Default choice. SVG/inline JS charts + analytical narrative |
+| Slides / presentation             | **HTML → PPTX**         | Only when user explicitly requests it                       |
+| Quick numbers / exploration       | **Terminal + Markdown** | Exploratory analysis, no visual packaging needed            |
 
 ---
 
@@ -48,15 +39,18 @@ Every HTML report must satisfy these baseline requirements.
 **These are engineering constraints, not style choices** — all styles must comply:
 
 ```css
-html { background: [match body background]; }
+html {
+  background: [match body background];
+}
 body {
   max-width: 1200px;
-  margin: 0 auto;        /* horizontally centered */
-  padding: 40px 48px;    /* breathing room */
+  margin: 0 auto; /* horizontally centered */
+  padding: 40px 48px; /* breathing room */
 }
 ```
 
 **Why:**
+
 - `margin: 0 auto` — report must be centered in browser, never left-aligned
 - `html` and `body` background must match — no color gap on sides
 - `max-width` not `width` — works on narrow screens too
@@ -91,35 +85,35 @@ gold (#FFD700) text on light backgrounds / purple backgrounds
 
 **Auto-select style based on data domain** (when user has not specified a style):
 
-| Data Domain | Auto-selected Style |
-|-------------|---------------------|
-| Financial / stock / investment data | Financial Times |
-| SaaS / product / growth metrics | Takram |
-| Strategy / market / competitive analysis | McKinsey |
-| Research / academic / technical | Swiss / NZZ |
-| Retail / consumer / e-commerce | The Economist |
-| Domain unclear | Random selection (see below) |
+| Data Domain                              | Auto-selected Style          |
+| ---------------------------------------- | ---------------------------- |
+| Financial / stock / investment data      | Financial Times              |
+| SaaS / product / growth metrics          | Takram                       |
+| Strategy / market / competitive analysis | McKinsey                     |
+| Research / academic / technical          | Swiss / NZZ                  |
+| Retail / consumer / e-commerce           | The Economist                |
+| Domain unclear                           | Random selection (see below) |
 
 If domain is ambiguous or the data spans multiple domains, randomly select from all available styles to keep outputs fresh:
 
 ### Classic (Finance / Consulting / Media)
 
-| Style | One-line feel | Best for |
-|-------|---------------|----------|
-| Financial Times | Salmon warmth, serif authority, traditional finance | Financial analysis, narrative reports |
-| McKinsey Consulting | Navy structure, Exhibit numbering, consulting rigor | Strategy analysis, framework decks |
-| The Economist | Red-accent magazine density, editorial headline with opinion | Industry insight, opinion reports |
-| Goldman Sachs | High-density investment tables, Rating badge formality | Financial modeling, valuation reports |
-| Swiss / NZZ | Black-and-white minimalism, extreme type contrast | Data showcase, design-forward reports |
+| Style               | One-line feel                                                | Best for                              |
+| ------------------- | ------------------------------------------------------------ | ------------------------------------- |
+| Financial Times     | Salmon warmth, serif authority, traditional finance          | Financial analysis, narrative reports |
+| McKinsey Consulting | Navy structure, Exhibit numbering, consulting rigor          | Strategy analysis, framework decks    |
+| The Economist       | Red-accent magazine density, editorial headline with opinion | Industry insight, opinion reports     |
+| Goldman Sachs       | High-density investment tables, Rating badge formality       | Financial modeling, valuation reports |
+| Swiss / NZZ         | Black-and-white minimalism, extreme type contrast            | Data showcase, design-forward reports |
 
 ### Design-forward
 
-| Style | One-line feel | Best for |
-|-------|---------------|----------|
-| Fathom | Navy scientific journal, Figure numbering + footnote system | Research reports, technical analysis |
-| Takram | Japanese light typography, soft shadows, gentle tech feel | Product analysis, innovation reports |
-| Editorial | Rust red + dusty rose unexpected palette, narrative editing | Annual reports, deep research |
-| Minimal | Ultra-heavy weight + 70% whitespace, luxury data presentation | Board reports, brand decks |
+| Style     | One-line feel                                                 | Best for                             |
+| --------- | ------------------------------------------------------------- | ------------------------------------ |
+| Fathom    | Navy scientific journal, Figure numbering + footnote system   | Research reports, technical analysis |
+| Takram    | Japanese light typography, soft shadows, gentle tech feel     | Product analysis, innovation reports |
+| Editorial | Rust red + dusty rose unexpected palette, narrative editing   | Annual reports, deep research        |
+| Minimal   | Ultra-heavy weight + 70% whitespace, luxury data presentation | Board reports, brand decks           |
 
 Style color values, fonts, and layout reference → `references/report-styles.md`
 
@@ -137,6 +131,7 @@ For any dataset with meaningful analytical depth, follow the four-phase process:
 ### Trigger Conditions
 
 Enable multi-expert deep analysis (rather than a simple statistical summary) when **any** of:
+
 - Data has multiple analytical dimensions (time series + financials + behavior, etc.)
 - User explicitly requests "deep analysis", "comprehensive analysis", or "make a report"
 - Dataset has >1000 rows and >15 fields
@@ -162,6 +157,7 @@ Phase 4: Unified Presentation  → Senior analyst integrates all findings into f
 ### Phase 1: Data Understanding
 
 After reading the data, immediately output:
+
 1. Dimensions (rows × columns), time range, field list
 2. Basic statistics (mean / median / extremes / missing rate)
 3. Data quality issues
@@ -172,6 +168,7 @@ After reading the data, immediately output:
 ### Phase 2: Expert Selection
 
 Select **3–5 expert roles** with different perspectives. Selection criteria:
+
 - **Domain match** — each role's expertise must directly relate to the data
 - **Complementary viewpoints** — roles don't overlap; together they cover quantitative / qualitative / strategic / risk / behavioral dimensions
 - **Credible framing** — use real well-known expert or institution names (e.g., Damodaran, McKinsey, Kahneman) to increase role authenticity
@@ -185,12 +182,14 @@ User can adjust roles before analysis begins.
 ### Phase 3: Parallel Deep Analysis (Subagent Architecture)
 
 **Each expert role uses an independent subagent running in parallel.** Benefits:
+
 - Context isolation: each expert focuses only on their dimension
 - Parallel efficiency: 3–5 analyses run simultaneously
 - Quality assurance: each subagent prompt contains the full role definition + data context + analysis objectives
 
 **Subagent invocation**: use the Task tool with `subagent_type="general-purpose"`.
 Each subagent prompt contains:
+
 ```
 1. Role definition (who you are, your analytical framework)
 2. Data file path
@@ -208,6 +207,7 @@ Collect all results after completion.
 **Key rule: no expert role names appear in the final report.**
 
 From the perspective of a single "senior management analyst", synthesize all expert findings:
+
 - Organize by **theme**, not by role (e.g., "Fundamentals", "Risk", "Trends", "Behavioral Insights")
 - Cross-reference findings from different roles to form richer conclusions
 - Headlines use **conclusion format** ("CapEx doubled, net cash turns negative for first time") not **description format** ("Capital Expenditure Analysis")
@@ -217,11 +217,11 @@ Final output: HTML report (default) or PPTX if requested.
 
 ### Scale Adaptation
 
-| Data Complexity | Expert Count | Subagent Strategy |
-|-----------------|-------------|-------------------|
-| Simple (single table, <10 fields) | Skip multi-expert | Direct analysis |
-| Medium (multi-dimension, cross-time) | 3 experts | Parallel subagents |
-| Complex (multi-table, multi-domain) | 5 experts | Parallel subagents |
+| Data Complexity                      | Expert Count      | Subagent Strategy  |
+| ------------------------------------ | ----------------- | ------------------ |
+| Simple (single table, <10 fields)    | Skip multi-expert | Direct analysis    |
+| Medium (multi-dimension, cross-time) | 3 experts         | Parallel subagents |
+| Complex (multi-table, multi-domain)  | 5 experts         | Parallel subagents |
 
 Detailed execution spec → `references/workflows.md`
 
@@ -240,11 +240,13 @@ Detailed execution spec → `references/workflows.md`
 **Report content defaults to the user's language.**
 
 Always use domain-standard English for:
+
 - Abbreviations and technical terms: FCF, CapEx, ROIC, D/E Ratio, P/FCF, Sharpe, GARCH, VaR
 - Company / product names: Meta, Apple, Amazon
 - Universal acronyms: IPO, AI, CEO, KPI, ROI
 
 Always localize:
+
 - Report titles, section headings, chart titles
 - "Executive Summary", "Source", "Synthesis" → translate to user's language
 - Evaluative language: Strong, Neutral, Extreme → translate
@@ -263,6 +265,7 @@ Core Conclusion (1–3 sentences — management reads only this)
 ### When to Ask Before Proceeding
 
 Always ask when:
+
 - Field meanings are unclear
 - Analytical dimensions are ambiguous
 - Report audience is unspecified
@@ -272,11 +275,11 @@ Always ask when:
 
 ## Tools & Scripts
 
-| Script | Purpose |
-|--------|---------|
+| Script                  | Purpose                                          |
+| ----------------------- | ------------------------------------------------ |
 | `scripts/read_excel.py` | Read Excel files (outputs markdown / CSV / JSON) |
-| `scripts/read_csv.py` | Read and profile CSV files |
-| `scripts/html2pptx.js` | Convert HTML slides → PPTX |
+| `scripts/read_csv.py`   | Read and profile CSV files                       |
+| `scripts/html2pptx.js`  | Convert HTML slides → PPTX                       |
 
 Auto-install missing dependencies when scripts are run.
 
@@ -284,9 +287,9 @@ Auto-install missing dependencies when scripts are run.
 
 ## Reference File Index
 
-| Need | Where to look |
-|------|---------------|
-| Report style parameters | `references/report-styles.md` |
-| HTML visualization component library | `references/html-templates.md` |
-| Detailed workflow spec | `references/workflows.md` |
-| Domain-specific analysis knowledge | `references/domain-knowledge.md` |
+| Need                                 | Where to look                    |
+| ------------------------------------ | -------------------------------- |
+| Report style parameters              | `references/report-styles.md`    |
+| HTML visualization component library | `references/html-templates.md`   |
+| Detailed workflow spec               | `references/workflows.md`        |
+| Domain-specific analysis knowledge   | `references/domain-knowledge.md` |

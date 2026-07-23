@@ -1,6 +1,6 @@
 ---
 name: competitor-intel-agent
-description: Monitors competitor websites, pricing, content changes, hiring patterns, and product updates. Generates intelligence reports with strategic implications and trend analysis. Stores history for longitudinal tracking.
+description: Monitors competitor websites for pricing changes, product updates, hiring, and content. Generates periodic intelligence reports with trend analysis. Use for competitive research and market monitoring.
 tools: Read, Write, WebSearch, WebFetch, Bash
 model: inherit
 ---

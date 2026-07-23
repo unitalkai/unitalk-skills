@@ -1,11 +1,6 @@
 ---
 name: computer-use
-description: |
-  Drive the user's desktop in the background — clicking, typing,
-  scrolling, dragging — without stealing the cursor, keyboard focus,
-  or switching virtual desktops / Spaces. Cross-platform: macOS,
-  Windows, Linux. Works with any tool-capable model. Load this skill
-  whenever the `computer_use` tool is available.
+description: Controls the user's desktop — clicking, typing, scrolling, and dragging across macOS, Windows, Linux — without stealing focus or cursor. Use for browser automation, UI testing, or repetitive desktop tasks.
 version: 2.0.0
 platforms: [macos, windows, linux]
 metadata:
@@ -74,11 +69,11 @@ computer_use(action="click", element=7, capture_after=True)
 
 ## Capture modes
 
-| `mode` | Returns | Best for |
-|---|---|---|
-| `som` (default) | Screenshot + numbered overlays + AX index | Vision models; preferred default |
-| `vision` | Plain screenshot | When SOM overlay interferes with what you want to verify |
-| `ax` | AX tree only, no image | Text-only models, or when you don't need to see pixels |
+| `mode`          | Returns                                   | Best for                                                 |
+| --------------- | ----------------------------------------- | -------------------------------------------------------- |
+| `som` (default) | Screenshot + numbered overlays + AX index | Vision models; preferred default                         |
+| `vision`        | Plain screenshot                          | When SOM overlay interferes with what you want to verify |
+| `ax`            | AX tree only, no image                    | Text-only models, or when you don't need to see pixels   |
 
 ## Actions
 
@@ -105,14 +100,14 @@ accept `modifiers=[…]` for held keys.
 
 Use the host's idiomatic modifier:
 
-| Common action | macOS | Windows / Linux |
-|---|---|---|
-| Save | `cmd+s` | `ctrl+s` |
-| New tab | `cmd+t` | `ctrl+t` |
-| Close tab / window | `cmd+w` | `ctrl+w` |
-| Copy / paste | `cmd+c` / `cmd+v` | `ctrl+c` / `ctrl+v` |
-| Address bar | `cmd+l` | `ctrl+l` |
-| App switcher | `cmd+tab` | `alt+tab` |
+| Common action      | macOS             | Windows / Linux     |
+| ------------------ | ----------------- | ------------------- |
+| Save               | `cmd+s`           | `ctrl+s`            |
+| New tab            | `cmd+t`           | `ctrl+t`            |
+| Close tab / window | `cmd+w`           | `ctrl+w`            |
+| Copy / paste       | `cmd+c` / `cmd+v` | `ctrl+c` / `ctrl+v` |
+| Address bar        | `cmd+l`           | `ctrl+l`            |
+| App switcher       | `cmd+tab`         | `alt+tab`           |
 
 When in doubt, capture and look for menu hints, or ask the user which
 shortcut to use.
@@ -200,15 +195,15 @@ in your conversation context.
 
 ## Failure modes — what to do when things go sideways
 
-| Symptom | Likely cause + remedy |
-|---|---|
-| `cua-driver not installed` | Run `hermes computer-use install`, or `hermes tools` and enable Computer Use |
+| Symptom                                                    | Likely cause + remedy                                                                                                                                                                                                                                 |
+| ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cua-driver not installed`                                 | Run `hermes computer-use install`, or `hermes tools` and enable Computer Use                                                                                                                                                                          |
 | Captures consistently return empty / "no on-screen window" | On Linux: DISPLAY may not be set (X11) or you're on pure Wayland — ask the user to run `hermes computer-use doctor`. On Windows: you may be in Session 0 (SSH session) instead of the interactive desktop — see the cua-driver `WINDOWS.md` deep-dive |
-| Element index stale ("Element N not in cache") | SOM indices are only valid until the next `capture`. Re-capture before clicking. The wrapper carries opaque `element_token`s for stale-detection; you'll see an explicit error rather than a wrong click |
-| Click had no effect | Re-capture and verify. A modal that wasn't visible before may be blocking input. Dismiss it (usually `escape` or click its close button) before retrying |
-| Type text disappears into a terminal emulator | cua-driver detects terminals (Ghostty, iTerm2, Terminal.app, Windows Terminal, mintty, etc.) and routes through key-event synthesis — should "just work" on a recent cua-driver. If it doesn't, ask the user to run `hermes computer-use doctor` |
-| `blocked pattern in type text` | You tried to `type` a shell command matching the dangerous-pattern block list (`curl ... \| bash`, `sudo rm -rf`, etc.). Break the command up or reconsider |
-| Anything else weird | **First action: ask the user to run `hermes computer-use doctor`.** It runs the cua-driver `health_report` MCP tool and prints a structured per-check matrix. Their output tells you (and them) exactly what's wrong |
+| Element index stale ("Element N not in cache")             | SOM indices are only valid until the next `capture`. Re-capture before clicking. The wrapper carries opaque `element_token`s for stale-detection; you'll see an explicit error rather than a wrong click                                              |
+| Click had no effect                                        | Re-capture and verify. A modal that wasn't visible before may be blocking input. Dismiss it (usually `escape` or click its close button) before retrying                                                                                              |
+| Type text disappears into a terminal emulator              | cua-driver detects terminals (Ghostty, iTerm2, Terminal.app, Windows Terminal, mintty, etc.) and routes through key-event synthesis — should "just work" on a recent cua-driver. If it doesn't, ask the user to run `hermes computer-use doctor`      |
+| `blocked pattern in type text`                             | You tried to `type` a shell command matching the dangerous-pattern block list (`curl ... \| bash`, `sudo rm -rf`, etc.). Break the command up or reconsider                                                                                           |
+| Anything else weird                                        | **First action: ask the user to run `hermes computer-use doctor`.** It runs the cua-driver `health_report` MCP tool and prints a structured per-check matrix. Their output tells you (and them) exactly what's wrong                                  |
 
 ## When NOT to use `computer_use`
 
