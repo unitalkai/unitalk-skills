@@ -141,9 +141,9 @@ See `PREREQUESITES-DEPENDENCIES/` for the full per-skill breakdown. Quick summar
 | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | **OS (apt)**                  | `pandoc`, `libreoffice-core`, `libreoffice-impress`, `poppler-utils`, `gcc`, `qpdf`, `imagemagick`                       |
 | **OS optional** (`--all`)     | `tesseract-ocr`, `pdftk-java`                                                                                            |
-| **Python**                    | `defusedxml`, `lxml`, `pypdf`, `pdfplumber`, `pdf2image`, `Pillow`, `reportlab`, `pandas`, `markitdown[all]`, `openpyxl` |
-| **Python optional** (`--all`) | `pytesseract`, `pypdfium2`, `numpy`                                                                                      |
-| **npm global**                | `docx`, `pptxgenjs`, `react-icons`, `react`, `react-dom`, `sharp`                                                        |
+| **Python**                    | `defusedxml`, `lxml`, `python-docx`, `pypdf`, `pdfplumber`, `pdf2image`, `Pillow`, `reportlab`, `pandas`, `markitdown[all]`, `python-pptx`, `openpyxl` |
+| **Python optional** (`--all`) | `pytesseract`, `pypdfium2`, `numpy`                                                                                                                    |
+| **npm global**                | `docx`, `pptxgenjs`, `react-icons`, `react`, `react-dom`, `sharp`                                                                                      |
 
 ### Why System Python Too?
 
@@ -158,10 +158,10 @@ The Unitalk venv at `/opt/hermes/.venv/bin/python` is used by scripts that expli
 sudo apt-get install -y pandoc libreoffice-core libreoffice-impress poppler-utils gcc qpdf imagemagick
 
 # Python (into the venv)
-/opt/hermes/.venv/bin/pip install defusedxml lxml pypdf pdfplumber pdf2image Pillow reportlab pandas "markitdown[all]" openpyxl
+/opt/hermes/.venv/bin/pip install defusedxml lxml python-docx pypdf pdfplumber pdf2image Pillow reportlab pandas "markitdown[all]" python-pptx openpyxl
 
 # Python (into system Python)
-pip3 install defusedxml lxml pypdf pdfplumber pdf2image Pillow reportlab pandas "markitdown[all]" openpyxl
+pip3 install defusedxml lxml python-docx pypdf pdfplumber pdf2image Pillow reportlab pandas "markitdown[all]" python-pptx openpyxl
 
 # Node.js (if available)
 npm install -g docx pptxgenjs react-icons react react-dom sharp

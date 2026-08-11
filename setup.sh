@@ -181,6 +181,7 @@ CORE_PYTHON=(
 	# docx
 	defusedxml
 	lxml
+	python-docx
 	# pdf
 	pypdf
 	pdfplumber
@@ -190,6 +191,7 @@ CORE_PYTHON=(
 	pandas
 	# pptx
 	markitdown[all]
+	python-pptx
 	# xlsx
 	openpyxl
 	# config management
@@ -237,7 +239,7 @@ if [[ "${INSTALL_ALL}" == true ]]; then
 fi
 
 echo "    Verifying key Python imports (venv)..."
-KEY_IMPORTS=(defusedxml lxml pypdf pdfplumber pdf2image PIL reportlab pandas markitdown openpyxl)
+KEY_IMPORTS=(defusedxml lxml docx pypdf pdfplumber pdf2image PIL reportlab pandas markitdown pptx openpyxl)
 for mod in "${KEY_IMPORTS[@]}"; do
 	if "${VENV_PYTHON}" -c "import ${mod}" 2>/dev/null; then
 		echo "      ✓ ${mod} (venv)"

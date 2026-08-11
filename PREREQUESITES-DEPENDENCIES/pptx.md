@@ -7,12 +7,13 @@
 | `defusedxml`   | `unpack.py`, `pack.py`, `clean.py`, `add_slide.py`, `thumbnail.py`, `merge_runs.py`, `simplify_redlines.py`, `validators/base.py`, `validators/docx.py`, `validators/pptx.py` | Safe XML parsing (prevents billion laughs / XXE attacks)            |
 | `lxml`         | `validators/base.py`, `validators/pptx.py`, `validators/docx.py`                                                                                                              | Advanced XML parsing & XSD schema validation                        |
 | `Pillow` (PIL) | `thumbnail.py`                                                                                                                                                                | Slide thumbnail grid generation (image compositing, drawing, fonts) |
-| `markitdown`   | Referenced in `SKILL.md`, `editing.md`                                                                                                                                        | Text extraction from `.pptx` files via `python -m markitdown`       |
+| `markitdown`   | Referenced in `SKILL.md`, `editing.md`                                                                                                                                        | Text extraction from `.pptx` / `.docx` via `python -m markitdown`   |
+| `python-pptx`  | SKILL.md / verification (read-back)                                                                                                                                           | Reading `.pptx` files and extracting text for verification          |
 
 ### Install (pip)
 
 ```bash
-pip install defusedxml lxml Pillow markitdown
+pip install defusedxml lxml Pillow markitdown python-pptx
 ```
 
 ## OS-Level Dependencies
