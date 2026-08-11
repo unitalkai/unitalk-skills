@@ -8,7 +8,7 @@ These must be installed in the Python environment used to run the skill's script
 | ------------- | ------------ | --------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
 | `defusedxml`  | (any recent) | `unpack.py`, `pack.py`, `comment.py`, `merge_runs.py`, `simplify_redlines.py`, `base.py`, `docx.py` | Safe XML parsing (prevents billion laughs / XXE attacks) |
 | `lxml`        | (any recent) | `base.py`, `docx.py`                                                                                | XSD schema validation and namespace-aware XML parsing    |
-| `python-docx` | (any recent) | SKILL.md / verification (read-back)                                                                 | Reading `.docx` files and extracting text for verification |
+| `python-docx` | (any recent) | `docx_*.py` CLIs / SKILL.md                                                                         | Create/read/edit/template Word `.docx` files               |
 
 Install with:
 

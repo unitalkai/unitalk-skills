@@ -11,7 +11,7 @@ unitalk-skills/
 ├── PREREQUESITES-DEPENDENCIES/       # Per-skill dependency manifests
 │   ├── docx.md
 │   ├── pdf.md
-│   ├── pptx.md
+│   ├── powerpoint.md
 │   └── xlsx.md
 ├── code/                             # Planning & automation skills
 │   ├── DESCRIPTION.md
@@ -26,12 +26,13 @@ unitalk-skills/
 │   └── obsidian/
 ├── documents-and-analysis/           # Document & data analysis skills
 │   ├── DESCRIPTION.md
-│   ├── docx-odt/
+│   ├── data-analysis/
+│   ├── docx/
 │   ├── jupyter-live-kernel/
 │   ├── nano-pdf/
 │   ├── pdf/
-│   ├── pptx/
-│   └── xlsx-ods/
+│   ├── powerpoint/
+│   └── xlsx/
 ├── medias/                           # Media creation skills
 │   ├── DESCRIPTION.md
 │   ├── excalidraw/
@@ -71,12 +72,13 @@ unitalk-skills/
 
 | Skill                 | Directory                                   | Key Capabilities                                                                                                                                |
 | --------------------- | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| **docx-odt**          | `documents-and-analysis/docx-odt/`          | Create/edit Word & ODT documents, tracked changes, comments, find-and-replace, image insertion, format conversion (doc→docx, odt↔docx, txt→odt) |
+| **data-analysis**     | `documents-and-analysis/data-analysis/`     | Full-cycle data analysis, visualization, HTML reports                                                                                          |
+| **docx**              | `documents-and-analysis/docx/`              | Create/read/edit/template Word `.docx` via python-docx CLIs (revisions, comments, validation)                                                  |
 | **jupyter-live-kernel** | `documents-and-analysis/jupyter-live-kernel/` | Iterative Python via live Jupyter kernel, data exploration, visualization, persistent state                                                   |
 | **nano-pdf**          | `documents-and-analysis/nano-pdf/`          | Natural-language PDF text editing (typos, titles) via nano-pdf CLI                                                                              |
-| **pdf**               | `documents-and-analysis/pdf/`               | Merge, split, rotate, encrypt/decrypt, fill forms, extract text/tables/images, OCR, create new PDFs                                             |
-| **pptx**              | `documents-and-analysis/pptx/`              | Create/edit presentations, slide thumbnails, text extraction, template-based generation, programmatic creation via pptxgenjs                    |
-| **xlsx-ods**          | `documents-and-analysis/xlsx-ods/`          | Read/write/edit spreadsheets, formula recalculation, data cleaning, charting, format conversion (ods↔xlsx)                                      |
+| **pdf**               | `documents-and-analysis/pdf/`               | Create/merge/split/forms/secure/stamp PDFs; text/table extraction; page images                                                                  |
+| **powerpoint**        | `documents-and-analysis/powerpoint/`        | Create/read/edit/template/render `.pptx` via python-pptx CLIs                                                                                   |
+| **xlsx**              | `documents-and-analysis/xlsx/`              | Create/read/edit/restructure Excel `.xlsx`, formula recalc, CSV interop                                                                         |
 
 ### Media
 
@@ -141,9 +143,9 @@ See `PREREQUESITES-DEPENDENCIES/` for the full per-skill breakdown. Quick summar
 | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | **OS (apt)**                  | `pandoc`, `libreoffice-core`, `libreoffice-impress`, `poppler-utils`, `gcc`, `qpdf`, `imagemagick`                       |
 | **OS optional** (`--all`)     | `tesseract-ocr`, `pdftk-java`                                                                                            |
-| **Python**                    | `defusedxml`, `lxml`, `python-docx`, `pypdf`, `pdfplumber`, `pdf2image`, `Pillow`, `reportlab`, `pandas`, `markitdown[all]`, `python-pptx`, `openpyxl` |
-| **Python optional** (`--all`) | `pytesseract`, `pypdfium2`, `numpy`                                                                                                                    |
-| **npm global**                | `docx`, `pptxgenjs`, `react-icons`, `react`, `react-dom`, `sharp`                                                                                      |
+| **Python**                    | `defusedxml`, `lxml`, `python-docx`, `pypdf`, `pdfplumber`, `pdf2image`, `Pillow`, `reportlab`, `pypdfium2`, `nano-pdf`, `pandas`, `markitdown[all]`, `python-pptx`, `openpyxl` |
+| **Python optional** (`--all`) | `pytesseract`, `numpy`                                                                                                                                                        |
+| **npm global**                | `docx`, `pptxgenjs`, `react-icons`, `react`, `react-dom`, `sharp`                                                                                                              |
 
 ### Why System Python Too?
 
@@ -158,10 +160,10 @@ The Unitalk venv at `/opt/hermes/.venv/bin/python` is used by scripts that expli
 sudo apt-get install -y pandoc libreoffice-core libreoffice-impress poppler-utils gcc qpdf imagemagick
 
 # Python (into the venv)
-/opt/hermes/.venv/bin/pip install defusedxml lxml python-docx pypdf pdfplumber pdf2image Pillow reportlab pandas "markitdown[all]" python-pptx openpyxl
+/opt/hermes/.venv/bin/pip install defusedxml lxml python-docx pypdf pdfplumber pdf2image Pillow reportlab pypdfium2 nano-pdf pandas "markitdown[all]" python-pptx openpyxl
 
 # Python (into system Python)
-pip3 install defusedxml lxml python-docx pypdf pdfplumber pdf2image Pillow reportlab pandas "markitdown[all]" python-pptx openpyxl
+pip3 install defusedxml lxml python-docx pypdf pdfplumber pdf2image Pillow reportlab pypdfium2 nano-pdf pandas "markitdown[all]" python-pptx openpyxl
 
 # Node.js (if available)
 npm install -g docx pptxgenjs react-icons react react-dom sharp
