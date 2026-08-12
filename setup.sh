@@ -31,7 +31,7 @@ usage() {
 Usage: ./setup.sh [--all] [--help]
 
   --all      Also install optional/legacy dependencies (pdftk-java, tesseract,
-             pytesseract, pypdfium2, numpy).
+             pytesseract, numpy).
   --help     Show this message.
 EOF
 	exit 0
@@ -181,15 +181,20 @@ CORE_PYTHON=(
 	# docx
 	defusedxml
 	lxml
+	python-docx
 	# pdf
 	pypdf
 	pdfplumber
 	pdf2image
 	Pillow
 	reportlab
+	pypdfium2
 	pandas
-	# pptx
+	# nano-pdf
+	nano-pdf
+	# pptx / powerpoint
 	markitdown[all]
+	python-pptx
 	# xlsx
 	openpyxl
 	# config management
@@ -218,7 +223,6 @@ fi
 # Optional Python packages
 OPTIONAL_PYTHON=(
 	pytesseract
-	pypdfium2
 	numpy
 )
 
@@ -237,7 +241,7 @@ if [[ "${INSTALL_ALL}" == true ]]; then
 fi
 
 echo "    Verifying key Python imports (venv)..."
-KEY_IMPORTS=(defusedxml lxml pypdf pdfplumber pdf2image PIL reportlab pandas markitdown openpyxl)
+KEY_IMPORTS=(defusedxml lxml docx pypdf pdfplumber pdf2image PIL reportlab pypdfium2 pandas markitdown pptx openpyxl)
 for mod in "${KEY_IMPORTS[@]}"; do
 	if "${VENV_PYTHON}" -c "import ${mod}" 2>/dev/null; then
 		echo "      ✓ ${mod} (venv)"

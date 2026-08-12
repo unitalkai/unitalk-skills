@@ -4,15 +4,16 @@
 
 These must be installed in the Python environment used to run the skill's scripts:
 
-| Library      | Version      | Used By                                                                                             | Purpose                                                  |
-| ------------ | ------------ | --------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| `defusedxml` | (any recent) | `unpack.py`, `pack.py`, `comment.py`, `merge_runs.py`, `simplify_redlines.py`, `base.py`, `docx.py` | Safe XML parsing (prevents billion laughs / XXE attacks) |
-| `lxml`       | (any recent) | `base.py`, `docx.py`                                                                                | XSD schema validation and namespace-aware XML parsing    |
+| Library       | Version      | Used By                                                                                             | Purpose                                                  |
+| ------------- | ------------ | --------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| `defusedxml`  | (any recent) | `unpack.py`, `pack.py`, `comment.py`, `merge_runs.py`, `simplify_redlines.py`, `base.py`, `docx.py` | Safe XML parsing (prevents billion laughs / XXE attacks) |
+| `lxml`        | (any recent) | `base.py`, `docx.py`                                                                                | XSD schema validation and namespace-aware XML parsing    |
+| `python-docx` | (any recent) | `docx_*.py` CLIs / SKILL.md                                                                         | Create/read/edit/template Word `.docx` files               |
 
 Install with:
 
 ```bash
-pip install defusedxml lxml
+pip install defusedxml lxml python-docx
 ```
 
 ## NPM / Node.js Libraries

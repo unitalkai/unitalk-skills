@@ -11,6 +11,8 @@
 | **pdf2image**    | Convert PDF pages to PNG images. Used by `convert_pdf_to_images.py`.                                                                                                                                                               | `pip install pdf2image`  |
 | **Pillow** (PIL) | Image manipulation, drawing bounding-box validation overlays. Used by `create_validation_image.py`.                                                                                                                                | `pip install Pillow`     |
 | **reportlab**    | Create new PDFs from scratch (Canvas, Platypus, tables, styled paragraphs).                                                                                                                                                        | `pip install reportlab`  |
+| **pypdfium2**    | Preferred page rasterizer for `pdf_page_image.py` / form overlays (falls back to `pdftoppm`).                                                                                                                                      | `pip install pypdfium2`  |
+| **nano-pdf**     | Separate `nano-pdf` skill — natural-language PDF text edits.                                                                                                                                                                       | `pip install nano-pdf`   |
 
 ### Optional / Advanced
 
@@ -18,7 +20,6 @@
 | --------------- | -------------------------------------------------------------------------------------------------- | ------------------------- |
 | **pandas**      | Handling extracted tables and exporting to Excel/CSV.                                              | `pip install pandas`      |
 | **pytesseract** | OCR on scanned/image-based PDFs to extract text.                                                   | `pip install pytesseract` |
-| **pypdfium2**   | Alternative PDF rendering (faster image generation, text extraction). Mentioned in `reference.md`. | `pip install pypdfium2`   |
 | **numpy**       | Numerical array processing for advanced image-based figure extraction.                             | `pip install numpy`       |
 
 ---

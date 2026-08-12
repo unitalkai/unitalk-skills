@@ -1,12 +1,16 @@
 ---
-description: Skills for creating, reading, editing, and manipulating various document formats including Word documents (.docx), OpenDocument text files (.odt), PDF files, PowerPoint presentations (.pptx), spreadsheets (.xlsx, .ods), and Jupyter notebooks for data exploration and analysis.
+description: Skills for creating, reading, editing, and analyzing Word (.docx), PDF, PowerPoint (.pptx), Excel (.xlsx), and related document/data workflows.
 ---
 
 # Document and Analysis Skills
 
-## docx-odt
+## data-analysis
 
-Create, read, edit, or manipulate Word documents (.docx files), OpenDocument text files (.odt), and plain text files with professional formatting including tables of contents, headings, page numbers, tracked changes, and comments.
+Full-cycle data analysis: processing, statistical insight, visualization, and HTML report writing.
+
+## docx
+
+Create, read, edit, template, and review Word `.docx` files via python-docx helper CLIs (revisions, comments, `{{token}}` fills, package health checks).
 
 ## jupyter-live-kernel
 
@@ -18,12 +22,12 @@ Edit PDF text, typos, and titles using natural-language instructions and the nan
 
 ## pdf
 
-PDF processing and manipulation including reading, extracting text and tables, merging and splitting PDFs, rotating pages, adding watermarks, creating new PDFs, filling PDF forms, encrypting/decrypting, extracting images, and OCR on scanned PDFs.
+Create, read, merge/split, watermark/stamp, fill AcroForms, secure, and export page images for PDFs using pypdf / reportlab / pdfplumber CLIs.
 
-## pptx
+## powerpoint
 
-Create, read, edit, and manipulate PowerPoint presentations (.pptx files) including slide decks, pitch decks, templates, layouts, speaker notes, and comments.
+Create, read, edit, template, and render PowerPoint `.pptx` decks via python-pptx helper CLIs.
 
-## xlsx-ods
+## xlsx
 
-Create, read, edit, and manipulate spreadsheet files (.xlsx, .xlsm, .ods, .csv, .tsv) including data cleaning, formula creation, formatting, charting, and conversion between tabular file formats.
+Create, read, edit, restructure, and recalculate Excel `.xlsx` workbooks and CSV interop via openpyxl helper CLIs.

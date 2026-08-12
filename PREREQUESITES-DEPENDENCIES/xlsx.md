@@ -6,7 +6,7 @@ These must be installed in the Python environment used to run the skill's script
 
 | Library      | Version      | Used By                                                                                          | Purpose                                                      |
 | ------------ | ------------ | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------ |
-| `openpyxl`   | (any recent) | `recalc.py`, SKILL.md (code snippets)                                                            | Read/write .xlsx files with formulas, formatting, styles     |
+| `openpyxl`   | (any recent) | `xlsx_*.py` CLIs, SKILL.md                                                                       | Read/write .xlsx files with formulas, formatting, styles     |
 | `defusedxml` | (any recent) | `unpack.py`, `pack.py`, `merge_runs.py`, `simplify_redlines.py`, `base.py`, `docx.py`, `pptx.py` | Safe XML parsing (prevents billion laughs / XXE attacks)     |
 | `lxml`       | (any recent) | `base.py`, `docx.py`, `pptx.py`                                                                  | XSD schema validation and namespace-aware XML parsing        |
 | `pandas`     | (any recent) | SKILL.md (code snippets)                                                                         | Data analysis, bulk operations, reading/writing tabular data |
@@ -27,7 +27,7 @@ These must be available on `$PATH`:
 
 | Binary     | Package (Debian/Ubuntu)               | Package (macOS)    | Used By                         | Purpose                                                                                                                                           |
 | ---------- | ------------------------------------- | ------------------ | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `soffice`  | `libreoffice-core` (or `libreoffice`) | `libreoffice`      | `recalc.py`, `soffice.py`       | Recalculates Excel formulas via headless LibreOffice macro. Required for all formula-bearing .xlsx files.                                         |
+| `soffice`  | `libreoffice-core` (or `libreoffice`) | `libreoffice`      | `xlsx_recalc.py`                | Recalculates Excel formulas via headless LibreOffice. Soft-required for formula-bearing workbooks.                                                |
 | `gcc`      | `build-essential` (or `gcc`)          | `gcc` (Xcode CLT)  | `soffice.py` (`_ensure_shim()`) | Compiles an `LD_PRELOAD` shim (`.so`) at runtime when AF_UNIX sockets are blocked (sandboxed VMs). Only used on-demand, not for normal operation. |
 | `timeout`  | `coreutils` (built-in)                | `coreutils` (brew) | `recalc.py`                     | Limits LibreOffice recalculation runtime (Linux). Part of GNU coreutils.                                                                          |
 | `gtimeout` | —                                     | `coreutils` (brew) | `recalc.py`                     | Limits LibreOffice recalculation runtime (macOS). Installed via `brew install coreutils`.                                                         |
