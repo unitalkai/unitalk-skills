@@ -1,6 +1,6 @@
 ---
 name: docx
-description: Create, read, edit, template, and review Word .docx files.
+description: Create, read, edit, template, and review Word .docx files. Load when the user needs formatted documents, reports, or text file conversion.
 version: 1.1.0
 author: Nous Research
 license: MIT
