@@ -1,6 +1,6 @@
 # Unitalk Skills
 
-A curated collection of 19 agent skills organized into 6 category directories for the Unitalk agent platform.
+A curated collection of 20 agent skills organized into 6 category directories for the Unitalk agent platform.
 
 ## Repository Structure
 
@@ -10,6 +10,7 @@ unitalk-skills/
 ├── README.md                         # This file
 ├── PREREQUESITES-DEPENDENCIES/       # Per-skill dependency manifests
 │   ├── docx.md
+│   ├── mistral-ocr.md
 │   ├── pdf.md
 │   ├── powerpoint.md
 │   └── xlsx.md
@@ -29,6 +30,7 @@ unitalk-skills/
 │   ├── data-analysis/
 │   ├── docx/
 │   ├── jupyter-live-kernel/
+│   ├── mistral-ocr/
 │   ├── nano-pdf/
 │   ├── pdf/
 │   ├── powerpoint/
@@ -75,6 +77,7 @@ unitalk-skills/
 | **data-analysis**     | `documents-and-analysis/data-analysis/`     | Full-cycle data analysis, visualization, HTML reports                                                                                          |
 | **docx**              | `documents-and-analysis/docx/`              | Create/read/edit/template Word `.docx` via python-docx CLIs (revisions, comments, validation)                                                  |
 | **jupyter-live-kernel** | `documents-and-analysis/jupyter-live-kernel/` | Iterative Python via live Jupyter kernel, data exploration, visualization, persistent state                                                   |
+| **mistral-ocr**         | `documents-and-analysis/mistral-ocr/`         | Scanned PDF / image OCR via Hermes-web `POST /api/ocr` (Mistral via LiteLLM)                                                                    |
 | **nano-pdf**          | `documents-and-analysis/nano-pdf/`          | Natural-language PDF text editing (typos, titles) via nano-pdf CLI                                                                              |
 | **pdf**               | `documents-and-analysis/pdf/`               | Create/merge/split/forms/secure/stamp PDFs; text/table extraction; page images                                                                  |
 | **powerpoint**        | `documents-and-analysis/powerpoint/`        | Create/read/edit/template/render `.pptx` via python-pptx CLIs                                                                                   |
@@ -146,6 +149,8 @@ See `PREREQUESITES-DEPENDENCIES/` for the full per-skill breakdown. Quick summar
 | **Python**                    | `defusedxml`, `lxml`, `python-docx`, `pypdf`, `pdfplumber`, `pdf2image`, `Pillow`, `reportlab`, `pypdfium2`, `nano-pdf`, `pandas`, `markitdown[all]`, `python-pptx`, `openpyxl` |
 | **Python optional** (`--all`) | `pytesseract`, `numpy`                                                                                                                                                        |
 | **npm global**                | `docx`, `pptxgenjs`, `react-icons`, `react`, `react-dom`, `sharp`                                                                                                              |
+
+**Mistral OCR** (`mistral-ocr` skill) uses Hermes-web `/api/ocr` — not pip/npm. See `PREREQUESITES-DEPENDENCIES/mistral-ocr.md`.
 
 ### Why System Python Too?
 
