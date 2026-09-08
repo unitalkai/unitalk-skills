@@ -16,6 +16,10 @@ Create, read, edit, template, and review Word `.docx` files via python-docx help
 
 Iterative Python via live Jupyter kernel (hamelnb) with a stateful Python REPL for data exploration, visualization, and incremental code execution with persistent variables.
 
+## mistral-ocr
+
+Cloud OCR for scanned PDFs and images via Hermes-web `POST /api/ocr` (Mistral OCR through LiteLLM). No local pip deps — requires Hermes-web env + fetchable document URLs.
+
 ## nano-pdf
 
 Edit PDF text, typos, and titles using natural-language instructions and the nano-pdf CLI tool for quick and easy PDF text modifications.
