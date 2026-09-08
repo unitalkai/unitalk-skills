@@ -116,7 +116,8 @@ The skills are designed to be deployed alongside a Unitalk agent instance. The r
 
 - A running Unitalk container with:
   - `/opt/hermes/.venv/` — Python virtual environment
-  - `/opt/data/skills/` — skills directory
+  - `/opt/data/skills/` — persistent user-created skills directory
+  - `/opt/data/unitalk-skills/` — Unitalk-managed skills directory
 - `setup.sh` and all skill directories available inside the container
 
 ### One-Shot Setup (Recommended)
@@ -131,12 +132,18 @@ The skills are designed to be deployed alongside a Unitalk agent instance. The r
 
 The script performs:
 1. **Pre-flight checks** — verifies root access and required directories
-2. **Copy skills** — copies all category directories into `/opt/data/skills/`
+2. **Separate skills by ownership** — keeps user-created skills in `/opt/data/skills/` and replaces repository skills in `/opt/data/unitalk-skills/`
 3. **Bootstrap pip** — ensures pip is available in the venv
 4. **OS packages** — installs system dependencies via `apt-get`
 5. **Python packages** — installs required libraries into both the venv and system Python
 6. **Node.js global packages** — installs npm packages (skipped if Node.js unavailable)
 7. **Verification** — checks critical binaries and Python modules
+
+On the first run with the split layout, the script removes byte-identical Hermes bundled skills using Hermes's `.bundled_manifest`, backs up legacy Unitalk skill paths under `/opt/data/migration-backups/skills-layout-v1/`, and removes only those known paths from the local skills tree. Unknown user-created skills are preserved. The persistent `/opt/data/.unitalk-skills-layout-v2` marker prevents that migration from running again.
+
+The entire `/opt/data` directory must be stored on a per-user persistent Docker volume. This preserves custom skills, Hermes's bundled-skill opt-out marker, configuration, and the Unitalk migration marker when a container is replaced.
+
+After changing the installed skill set, restart the Hermes gateway (or run `/reload-skills` in an active session) so long-running processes refresh their skill index.
 
 ### What Gets Installed
 
