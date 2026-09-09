@@ -72,7 +72,7 @@ Before creating a new skill folder, classify the skill into exactly one existing
 
 Use the skill's primary user outcome to choose the category. If it spans multiple areas, choose the category that owns its main workflow; do not create a catch-all category.
 
-Create every new skill at `/opt/data/skills/<category>/<skill-name>/`, replacing `<category>` with one of the six names above. Do not create a category folder, and never place a skill directly in `/opt/data/skills/`. If the required category directory is unavailable, stop and ask the user rather than using another location.
+Create every new skill at `/opt/data/skills/<category>/<skill-name>/`, replacing `<category>` with one of the six names above. Do not create a category folder, and never place a skill directly in `/opt/data/skills/`. Unitalk-managed skills live separately in `/opt/data/unitalk-skills`; before creating a skill, check that no managed skill anywhere in that directory has the same frontmatter `name`, because a local skill would shadow it. If the name is reserved or the required category directory is unavailable, stop and ask the user to choose another name rather than using another location.
 
 ### Write the SKILL.md
 

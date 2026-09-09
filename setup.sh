@@ -15,14 +15,20 @@ set -euo pipefail
 
 # ─── Configuration ───────────────────────────────────────────────────────────
 
-HERMES_ROOT="/opt/hermes"
-SKILLS_DIR="/opt/data/skills"
+HERMES_ROOT="${HERMES_ROOT:-/opt/hermes}"
+HERMES_HOME="${HERMES_HOME:-/opt/data}"
+SKILLS_DIR="${HERMES_HOME}/skills"
+MANAGED_SKILLS_DIR="${HERMES_HOME}/unitalk-skills"
+MANAGED_SKILLS_STAGE="${HERMES_HOME}/.unitalk-skills.next"
+LAYOUT_MARKER="${HERMES_HOME}/.unitalk-skills-layout-v2"
+MIGRATION_BACKUP_ROOT="${HERMES_HOME}/migration-backups"
+MIGRATION_BACKUP_DIR="${MIGRATION_BACKUP_ROOT}/skills-layout-v1"
 VENV_PYTHON="${HERMES_ROOT}/.venv/bin/python"
 VENV_PIP="${HERMES_ROOT}/.venv/bin/pip"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-HERMES_HOME="/opt/data"
 
 INSTALL_ALL=false
+NEEDS_LAYOUT_MIGRATION=false
 
 # ─── Help ────────────────────────────────────────────────────────────────────
 
@@ -54,39 +60,241 @@ if [[ "$(id -u)" -ne 0 ]]; then
 	exit 1
 fi
 
+mkdir -p "${HERMES_HOME}"
+if [[ -L "${HERMES_HOME}" || -L "${SKILLS_DIR}" || -L "${MANAGED_SKILLS_DIR}" || -L "${LAYOUT_MARKER}" || -L "${MIGRATION_BACKUP_ROOT}" ]]; then
+	echo "ERROR: Refusing to provision through symlinked Hermes data paths."
+	exit 1
+fi
+LOCK_DIR="${UNITALK_LOCK_DIR:-/run/lock}"
+mkdir -p "${LOCK_DIR}"
+exec 9>"${LOCK_DIR}/unitalk-skills-$(stat -c '%d-%i' "${HERMES_HOME}").lock"
+if ! flock -n 9; then
+	echo "ERROR: Another Unitalk skills setup is already running."
+	exit 1
+fi
 
-# ─── Copy skills to /opt/data/skills ──────────────────────────────────────
+
+# ─── Provision managed skills and migrate the legacy layout ──────────────
 
 echo ""
-echo "==> Setting up /opt/data/skills..."
+echo "==> Setting up Hermes skills..."
 
 # Hermes re-seeds bundled skills on startup unless the active profile opts out.
-# Do this before replacing the skills directory so a subsequent deployment does
-# not restore the image's bundled skills alongside the provisioned set.
+# Opt-out is non-interactive and leaves all existing skills untouched.
 echo "    Opting out of Hermes bundled-skill seeding..."
 HERMES_HOME="${HERMES_HOME}" "${HERMES_ROOT}/.venv/bin/hermes" skills opt-out || {
 	echo "ERROR: Failed to opt out of Hermes bundled-skill seeding."
 	exit 1
 }
 
-# Remove all existing skills
-if [[ -d "${SKILLS_DIR}" ]]; then
-	echo "    Removing existing skills..."
-	rm -rf "${SKILLS_DIR}"
-fi
 mkdir -p "${SKILLS_DIR}"
 
-# Copy category directories (excluding PREREQUESITES-DEPENDENCIES/)
-echo "    Copying skills..."
+if [[ ! -f "${LAYOUT_MARKER}" ]]; then
+	NEEDS_LAYOUT_MIGRATION=true
+fi
+
+# Configure discovery before moving any legacy skill. Write atomically so an
+# interrupted deployment cannot truncate unrelated Hermes configuration.
+CONFIG_PATH="${HERMES_HOME}/config.yaml"
+echo "    Configuring managed skill discovery..."
+"${VENV_PYTHON}" - "${CONFIG_PATH}" "${MANAGED_SKILLS_DIR}" "${NEEDS_LAYOUT_MIGRATION}" <<'PY' || {
+import os
+import sys
+import tempfile
+
+import yaml
+
+config_path, managed_dir, migrate = sys.argv[1:]
+config = {}
+if os.path.exists(config_path):
+    with open(config_path, encoding="utf-8") as source:
+        config = yaml.safe_load(source) or {}
+if not isinstance(config, dict):
+    raise TypeError("config.yaml root must be a mapping")
+
+skills = config.setdefault("skills", {})
+if not isinstance(skills, dict):
+    raise TypeError("config.yaml skills value must be a mapping")
+
+external_dirs = skills.get("external_dirs") or []
+if isinstance(external_dirs, str):
+    external_dirs = [external_dirs]
+if not isinstance(external_dirs, list) or not all(isinstance(item, str) for item in external_dirs):
+    raise TypeError("skills.external_dirs must be a string or list of strings")
+if managed_dir not in external_dirs:
+    external_dirs.append(managed_dir)
+skills["external_dirs"] = external_dirs
+
+disabled = skills.get("disabled") or []
+if isinstance(disabled, str):
+    disabled = [disabled]
+if not isinstance(disabled, list) or not all(isinstance(item, str) for item in disabled):
+    raise TypeError("skills.disabled must be a string or list of strings")
+if migrate == "true":
+    legacy_disabled = {"blogwatcher", "llm-wiki", "arxiv", "excalidraw", "obsidian"}
+    disabled = [name for name in disabled if name not in legacy_disabled]
+skills["disabled"] = sorted(set(disabled))
+
+config_dir = os.path.dirname(config_path)
+fd, temporary_path = tempfile.mkstemp(prefix=".config.yaml.", dir=config_dir, text=True)
+try:
+    with os.fdopen(fd, "w", encoding="utf-8") as target:
+        yaml.safe_dump(config, target, default_flow_style=False, sort_keys=False)
+        target.flush()
+        os.fsync(target.fileno())
+    with open(temporary_path, encoding="utf-8") as check:
+        yaml.safe_load(check)
+    if os.path.exists(config_path):
+        stat = os.stat(config_path)
+        os.chmod(temporary_path, stat.st_mode)
+        os.chown(temporary_path, stat.st_uid, stat.st_gid)
+    else:
+        import grp
+        import pwd
+        account = pwd.getpwnam("hermes")
+        group = grp.getgrnam("hermes")
+        os.chmod(temporary_path, 0o600)
+        os.chown(temporary_path, account.pw_uid, group.gr_gid)
+    os.replace(temporary_path, config_path)
+finally:
+    if os.path.exists(temporary_path):
+        os.unlink(temporary_path)
+PY
+	echo "ERROR: Failed to configure managed skill discovery."
+	exit 1
+}
+
+# Build the managed tree completely before replacing the live copy.
+rm -rf "${MANAGED_SKILLS_STAGE}"
+mkdir -p "${MANAGED_SKILLS_STAGE}"
+echo "    Staging Unitalk-managed skills..."
 for category_dir in "${SCRIPT_DIR}"/*/; do
 	category_name="$(basename "${category_dir}")"
-	# Skip PREREQUESITES-DEPENDENCIES and any non-skill dirs (like the script itself)
+	# Skip repository directories that are not skill categories.
 	[[ "${category_name}" == "PREREQUESITES-DEPENDENCIES" || "${category_name}" == "profiles" ]] && continue
-	cp -a "${category_dir}" "${SKILLS_DIR}/${category_name}"
+	cp -a "${category_dir}" "${MANAGED_SKILLS_STAGE}/${category_name}"
 done
+chown -R root:root "${MANAGED_SKILLS_STAGE}"
+chmod -R a+rX,u+w,go-w "${MANAGED_SKILLS_STAGE}"
 
-echo "    Done. Skill categories installed:"
-find "${SKILLS_DIR}" -maxdepth 1 -mindepth 1 -type d | sort | while read -r d; do
+# Existing installations stored Unitalk and user skills together. On the first
+# split-layout run, back up and remove only exact paths owned by this repository.
+# Unknown paths remain in the user-writable local skills directory.
+if [[ "${NEEDS_LAYOUT_MIGRATION}" == true ]]; then
+	echo "    Migrating legacy Unitalk skills out of ${SKILLS_DIR}..."
+	mkdir -p "${MIGRATION_BACKUP_ROOT}"
+	chown root:root "${MIGRATION_BACKUP_ROOT}"
+	chmod 0700 "${MIGRATION_BACKUP_ROOT}"
+	mkdir -p "${MIGRATION_BACKUP_DIR}"
+	MIGRATION_IN_PROGRESS=true
+	rollback_migration() {
+		if [[ "${MIGRATION_IN_PROGRESS}" != true ]]; then
+			return
+		fi
+		while IFS= read -r -d '' backup_skill_md; do
+			relative_skill="${backup_skill_md#"${MIGRATION_BACKUP_DIR}/"}"
+			relative_skill="${relative_skill%/SKILL.md}"
+			backup_skill="${MIGRATION_BACKUP_DIR}/${relative_skill}"
+			legacy_skill="${SKILLS_DIR}/${relative_skill}"
+			if [[ ! -e "${legacy_skill}" ]]; then
+				mkdir -p "$(dirname "${legacy_skill}")"
+				mv "${backup_skill}" "${legacy_skill}"
+			fi
+		done < <(find "${MIGRATION_BACKUP_DIR}" -type f -name SKILL.md -print0)
+		while IFS= read -r -d '' backup_description; do
+			relative_description="${backup_description#"${MIGRATION_BACKUP_DIR}/"}"
+			legacy_description="${SKILLS_DIR}/${relative_description}"
+			if [[ ! -e "${legacy_description}" ]]; then
+				mkdir -p "$(dirname "${legacy_description}")"
+				mv "${backup_description}" "${legacy_description}"
+			fi
+		done < <(find "${MIGRATION_BACKUP_DIR}" -type f -name DESCRIPTION.md -print0)
+	}
+	trap rollback_migration EXIT
+	while IFS= read -r -d '' skill_md; do
+		relative_skill="${skill_md#"${MANAGED_SKILLS_STAGE}/"}"
+		relative_skill="${relative_skill%/SKILL.md}"
+		legacy_skill="${SKILLS_DIR}/${relative_skill}"
+		backup_skill="${MIGRATION_BACKUP_DIR}/${relative_skill}"
+
+		if [[ -d "${legacy_skill}" ]]; then
+			mkdir -p "$(dirname "${backup_skill}")"
+			if [[ -e "${backup_skill}" ]]; then
+				echo "ERROR: Migration backup already exists for ${relative_skill}; refusing to remove the local copy."
+				exit 1
+			fi
+			mv "${legacy_skill}" "${backup_skill}"
+			echo "      Migrated ${relative_skill}"
+		fi
+	done < <(find "${MANAGED_SKILLS_STAGE}" -type f -name SKILL.md -print0)
+
+	# Category descriptions are managed too, but category directories may also
+	# contain custom skills and therefore must never be removed wholesale.
+	while IFS= read -r -d '' description; do
+		relative_description="${description#"${MANAGED_SKILLS_STAGE}/"}"
+		legacy_description="${SKILLS_DIR}/${relative_description}"
+		backup_description="${MIGRATION_BACKUP_DIR}/${relative_description}"
+
+		if [[ -f "${legacy_description}" ]]; then
+			mkdir -p "$(dirname "${backup_description}")"
+			if [[ -e "${backup_description}" ]]; then
+				echo "ERROR: Migration backup already exists for ${relative_description}; refusing to remove the local copy."
+				exit 1
+			fi
+			mv "${legacy_description}" "${backup_description}"
+		fi
+	done < <(find "${MANAGED_SKILLS_STAGE}" -type f -name DESCRIPTION.md -print0)
+fi
+
+# This tree contains no user data, so every deployment can replace it. Keep the
+# previous tree until the staged copy has been published successfully.
+MANAGED_SKILLS_PREVIOUS="${MANAGED_SKILLS_DIR}.previous"
+if [[ ! -d "${MANAGED_SKILLS_DIR}" && -d "${MANAGED_SKILLS_PREVIOUS}" ]]; then
+	mv "${MANAGED_SKILLS_PREVIOUS}" "${MANAGED_SKILLS_DIR}"
+fi
+rm -rf "${MANAGED_SKILLS_PREVIOUS}"
+if [[ -d "${MANAGED_SKILLS_DIR}" ]]; then
+	mv "${MANAGED_SKILLS_DIR}" "${MANAGED_SKILLS_PREVIOUS}"
+fi
+if ! mv "${MANAGED_SKILLS_STAGE}" "${MANAGED_SKILLS_DIR}"; then
+	[[ -d "${MANAGED_SKILLS_PREVIOUS}" ]] && mv "${MANAGED_SKILLS_PREVIOUS}" "${MANAGED_SKILLS_DIR}"
+	echo "ERROR: Failed to publish Unitalk-managed skills."
+	exit 1
+fi
+rm -rf "${MANAGED_SKILLS_PREVIOUS}"
+
+# The destructive part of the legacy migration is complete. Record it now so
+# later dependency failures cannot cause the migration to run a second time.
+# Use Hermes's own manifest/hash checks to remove byte-identical bundled skills
+# only after the replacement managed tree is live.
+echo "    Removing unmodified Hermes bundled skills..."
+HERMES_HOME="${HERMES_HOME}" PYTHONPATH="${HERMES_ROOT}${PYTHONPATH:+:${PYTHONPATH}}" "${VENV_PYTHON}" -c '
+from tools.skills_sync import remove_pristine_bundled_skills
+
+result = remove_pristine_bundled_skills(dry_run=False)
+removed = result.get("removed", [])
+kept = result.get("skipped", [])
+failures = [item for item in kept if "delete failed" in str(item).lower()]
+print(f"    Removed {len(removed)} unmodified bundled skill(s).")
+if kept:
+    print(f"    Preserved {len(kept)} modified or unowned skill(s).")
+if failures:
+    raise RuntimeError(f"Failed to remove bundled skills: {failures}")
+' || {
+	echo "ERROR: Failed to remove unmodified Hermes bundled skills."
+	exit 1
+}
+
+if [[ "${NEEDS_LAYOUT_MIGRATION}" == true ]]; then
+	MARKER_STAGE="$(mktemp "${HERMES_HOME}/.unitalk-layout.XXXXXX")"
+	chmod 0644 "${MARKER_STAGE}"
+	mv "${MARKER_STAGE}" "${LAYOUT_MARKER}"
+	MIGRATION_IN_PROGRESS=false
+	trap - EXIT
+fi
+
+echo "    Unitalk skill categories installed:"
+find "${MANAGED_SKILLS_DIR}" -maxdepth 1 -mindepth 1 -type d | sort | while read -r d; do
 	echo "      $(basename "$d")"
 done
 
@@ -302,58 +510,6 @@ else
 	echo "    Install Node.js first (e.g., 'apt install nodejs npm') and re-run this script."
 fi
 
-# ─── Disable built-in skills that conflict with provisioned ones ──────────
-
-echo ""
-echo "==> Disabling built-in skills that conflict with provisioned ones..."
-
-DISABLE_SKILLS=(
-  "blogwatcher"
-  "llm-wiki"
-  "arxiv"
-  "excalidraw"
-  "obsidian"
-)
-
-CONFIG_PATH="${HERMES_HOME}/config.yaml"
-
-if command -v python3 &>/dev/null && "${VENV_PYTHON}" -c "import yaml" 2>/dev/null; then
-	if [ -f "$CONFIG_PATH" ]; then
-		# Merge into existing config
-		python3 -c "
-import yaml
-with open('$CONFIG_PATH') as f:
-    config = yaml.safe_load(f) or {}
-skills = config.setdefault('skills', {})
-existing = set(skills.get('disabled') or [])
-merged = sorted(existing | set('''${DISABLE_SKILLS[*]}'''.split()))
-if merged != (skills.get('disabled') or []):
-    skills['disabled'] = merged
-    with open('$CONFIG_PATH', 'w') as f:
-        yaml.safe_dump(config, f, default_flow_style=False, sort_keys=False)
-    print(f'    Disabled skills ({len(merged)} total): {merged}')
-else:
-    print('    No changes needed')
-" || {
-			echo "WARNING: Failed to update skills config — continuing."
-		}
-	else
-		# Bootstrap fresh config with just the disabled list
-		mkdir -p "$(dirname "$CONFIG_PATH")"
-		python3 -c "
-import yaml
-config = {'skills': {'disabled': sorted('''${DISABLE_SKILLS[*]}'''.split())}}
-with open('$CONFIG_PATH', 'w') as f:
-    yaml.safe_dump(config, f, default_flow_style=False)
-print('    Created config.yaml with disabled skills')
-" || {
-			echo "WARNING: Failed to create config.yaml — continuing."
-		}
-	fi
-else
-	echo "WARNING: python3 or PyYAML not available — skipping skills.disable config."
-fi
-
 # ─── Grant permissions to hermes user ─────────────────────────────────────
 
 echo ""
@@ -362,12 +518,23 @@ chown -R hermes:hermes "${SKILLS_DIR}" || {
 	echo "WARNING: Failed to chown skills directory — continuing."
 }
 
+# Managed skills are readable by Hermes but writable only by provisioning.
+chown -R root:root "${MANAGED_SKILLS_DIR}" || {
+	echo "ERROR: Failed to set ownership on managed skills."
+	exit 1
+}
+chmod -R a+rX,u+w,go-w "${MANAGED_SKILLS_DIR}" || {
+	echo "ERROR: Failed to set permissions on managed skills."
+	exit 1
+}
+
 # ─── Done ───────────────────────────────────────────────────────────────────
 
 echo ""
 echo "========================================"
 echo "  Hermes Skills setup complete!"
-echo "  Skills directory: ${SKILLS_DIR}"
+echo "  User skills: ${SKILLS_DIR}"
+echo "  Managed skills: ${MANAGED_SKILLS_DIR}"
 echo "  Python: ${VENV_PYTHON}"
 echo "  Run with --all next time for optional deps"
 echo "========================================"
