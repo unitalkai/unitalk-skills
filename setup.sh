@@ -417,6 +417,19 @@ else
 	echo "    Install Node.js first (e.g., 'apt install nodejs npm') and re-run this script."
 fi
 
+# ─── Remove legacy managed skills directory ────────────────────────────────
+
+LEGACY_MANAGED_SKILLS_DIR="${HERMES_HOME}/unitalk-skills"
+
+if [[ -L "${LEGACY_MANAGED_SKILLS_DIR}" ]]; then
+	echo "ERROR: Refusing to remove symlinked legacy skills path: ${LEGACY_MANAGED_SKILLS_DIR}"
+	exit 1
+elif [[ -d "${LEGACY_MANAGED_SKILLS_DIR}" ]]; then
+	echo ""
+	echo "==> Removing legacy skills directory ${LEGACY_MANAGED_SKILLS_DIR}..."
+	rm -rf "${LEGACY_MANAGED_SKILLS_DIR}"
+fi
+
 # ─── Done ───────────────────────────────────────────────────────────────────
 
 echo ""
