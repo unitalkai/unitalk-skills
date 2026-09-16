@@ -7,6 +7,7 @@ A curated collection of 20 agent skills organized into 6 category directories fo
 ```
 unitalk-skills/
 ├── setup.sh                          # One-shot provisioning script
+├── update-skill.sh                   # Explicit selected-skill updater
 ├── README.md                         # This file
 ├── PREREQUESITES-DEPENDENCIES/       # Per-skill dependency manifests
 │   ├── docx.md
@@ -116,9 +117,8 @@ The skills are designed to be deployed alongside a Unitalk agent instance. The r
 
 - A running Unitalk container with:
   - `/opt/hermes/.venv/` — Python virtual environment
-  - `/opt/data/skills/` — persistent user-created skills directory
-  - `/opt/data/unitalk-skills/` — Unitalk-managed skills directory
-- `setup.sh` and all skill directories available inside the container
+  - `/opt/data/skills/` — persistent Hermes skills directory
+- The provisioning scripts and all skill directories available inside the container
 
 ### One-Shot Setup (Recommended)
 
@@ -132,18 +132,58 @@ The skills are designed to be deployed alongside a Unitalk agent instance. The r
 
 The script performs:
 1. **Pre-flight checks** — verifies root access and required directories
-2. **Separate skills by ownership** — keeps user-created skills in `/opt/data/skills/` and replaces repository skills in `/opt/data/unitalk-skills/`
-3. **Bootstrap pip** — ensures pip is available in the venv
-4. **OS packages** — installs system dependencies via `apt-get`
-5. **Python packages** — installs required libraries into both the venv and system Python
-6. **Node.js global packages** — installs npm packages (skipped if Node.js unavailable)
+2. **Opt out of Hermes bundled-skill seeding** — prevents defaults from being restored on later starts
+3. **Remove pristine bundled skills** — uses Hermes's `.bundled_manifest`; modified and custom skills are preserved
+4. **Add missing repository skills** — copies each absent repository skill into `/opt/data/skills/<category>/<skill>`
+5. **Bootstrap pip** — ensures pip is available in the venv
+6. **Install dependencies** — installs required OS, Python, and global npm packages
 7. **Verification** — checks critical binaries and Python modules
 
-On the first run with the split layout, the script removes byte-identical Hermes bundled skills using Hermes's `.bundled_manifest`, backs up legacy Unitalk skill paths under `/opt/data/migration-backups/skills-layout-v1/`, and removes only those known paths from the local skills tree. Unknown user-created skills are preserved. The persistent `/opt/data/.unitalk-skills-layout-v2` marker prevents that migration from running again.
+`setup.sh` is intentionally additive. If a target skill directory already exists, the script leaves it unchanged, whether it is a repository skill, a locally modified skill, or a custom user skill. Rerunning setup therefore installs newly published skills but does not update existing ones.
 
-The entire `/opt/data` directory must be stored on a per-user persistent Docker volume. This preserves custom skills, Hermes's bundled-skill opt-out marker, configuration, and the Unitalk migration marker when a container is replaced.
+The entire `/opt/data` directory must be stored on a per-user persistent Docker volume. This preserves custom skills, installed repository skills, Hermes's bundled-skill opt-out marker, configuration, and update backups when a container is replaced.
 
 After changing the installed skill set, restart the Hermes gateway (or run `/reload-skills` in an active session) so long-running processes refresh their skill index.
+
+### Updating Selected Skills
+
+Because setup never overwrites an existing skill, use `update-skill.sh` when you intentionally want to publish a newer repository version of one or more skills.
+
+Pass each skill as its repository-relative `<category>/<skill>` path:
+
+```bash
+# Update one skill
+./update-skill.sh code/plan
+
+# Update several skills as one batch
+./update-skill.sh code/plan documents-and-analysis/pdf
+```
+
+The updater:
+
+1. Validates and stages every requested repository skill before changing installed files.
+2. Verifies that an existing target declares the same skill name as the repository version.
+3. Saves existing targets in one timestamped batch under `/opt/data/skill-update-backups/`.
+4. Replaces only the explicitly requested paths.
+5. Installs a requested skill if its target is currently missing.
+6. Rolls back the entire batch if any requested update fails.
+7. Assigns the published skills to `hermes:hermes`.
+
+If an existing target path contains a differently named skill, the updater aborts to avoid replacing a custom skill accidentally. Use `--force` only after verifying that the exact path should be replaced:
+
+```bash
+./update-skill.sh --force code/plan
+```
+
+Successful output includes the persistent backup batch path:
+
+```text
+Hermes skill update complete!
+Updated: 2
+Backup batch: /opt/data/skill-update-backups/20260916T133331Z.G0nmgT
+```
+
+After an update, restart Hermes or run `/reload-skills` so active processes refresh their skill index.
 
 ### What Gets Installed
 
